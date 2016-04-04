@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.template import loader
 
-# Create your views here.
+from mealplanner.models import Recipe
+
+
+def index(request):
+    recipe_list = Recipe.objects.all()
+    template = loader.get_template('mealplanner/index.html')
+    context = {
+        'recipe_list': recipe_list,
+    }
+    return HttpResponse(template.render(context, request))
+
