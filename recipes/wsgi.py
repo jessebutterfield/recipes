@@ -1,7 +1,7 @@
 import os
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'myproject.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'recipes.settings'
 
 from django.core.wsgi import get_wsgi_application
 
