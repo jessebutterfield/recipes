@@ -1,0 +1,6 @@
+{% if recipe %}
+	<h1>{{recipe.name}}</h1>
+    <p>{{recipe.instruction}}</p>
+{% else %}
+    <p>No recipe found with this id.</p>
+{% endif %}

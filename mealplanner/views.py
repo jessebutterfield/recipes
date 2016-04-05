@@ -12,3 +12,12 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
+def recipeDetail(request, recipe_id):
+    recipe = Recipe.objects.get(id=recipe_id)
+    template = loader.get_template('mealplanner/recipe.html')
+    context = {
+        'recipe': recipe,
+    }
+    return HttpResponse(template.render(context, request))
+    
+
