@@ -1,0 +1,12 @@
+{% if recipe %}
+	<h1>Edit recipe > {{recipe.name}}</h1>
+	
+	<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
+    	{% csrf_token %}
+    	{{ form.as_p }}
+    	<input type="submit" value="Submit" />
+	</form>
+    
+{% else %}
+    <p>No recipe found with this id.</p>
+{% endif %}
