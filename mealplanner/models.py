@@ -24,4 +24,3 @@ class Meal(models.Model):
     date = models.DateField()
     servings = models.IntegerField()
     recipe = models.ForeignKey(Recipe)
-

@@ -1,0 +1,16 @@
+.current {
+background-color:#b0c4de;
+}
+.datenum {
+font-weight:bold;
+}
+table {
+border-collapse:collapse;
+}
+td {
+vertical-align:text-top;
+border-style:solid;
+border-color:#B8B8B8;
+height:5em;
+min-width:8em;
+}
