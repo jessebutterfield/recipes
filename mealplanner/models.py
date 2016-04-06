@@ -11,6 +11,19 @@ class Recipe(models.Model):
     def __str__(self):
         return str(self.name)
     
+    def duplicate(self):
+        newRecipe = Recipe()
+        newRecipe.name = self.name
+        newRecipe.author = self.author
+        newRecipe.servings = self.servings
+        newRecipe.instructions = self.instructions
+        
+        for recipeingredient in self.recipeingredient_set.all():
+            newRecipeIng = recipeingredient.duplicate()
+            newRecipeIng.recipe = newRecipe
+            
+        return newRecipe
+    
 class RecipeIngredient(models.Model):
     name = models.CharField(max_length=200)
     recipe = models.ForeignKey(Recipe)
@@ -19,6 +32,14 @@ class RecipeIngredient(models.Model):
     
     def __str__(self):
         return str(self.name)
+    
+    def duplicate(self):
+        newRecipeIng = RecipeIngredient()
+        newRecipeIng.name = self.name
+        newRecipeIng.recipe = self.recipe
+        newRecipeIng.quantity = self.quantity
+        newRecipeIng.unit = self.unit
+        return newRecipeIng
     
 class Meal(models.Model):
     user = models.ForeignKey(User)

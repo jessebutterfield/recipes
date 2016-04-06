@@ -1,14 +1,15 @@
-from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from datetime import datetime,date,timedelta
 
 from mealplanner.models import Recipe, Meal
 from mealplanner.forms import recipe_name_form_factory
+
 import calendar
 
 def index(request):
@@ -40,19 +41,40 @@ def viewRecipe(request, recipe_id):
     
     return HttpResponse(template.render(context, request))
 
-def editRecipe(request, recipe_id):
+def editCurrentRecipe(request, recipe_id):
+    return editRecipe(request, recipe_id, False)
+
+def duplicateRecipe(request, recipe_id):
+    return editRecipe(request, recipe_id, True)
+
+def editRecipe(request, recipe_id, duplicate):
     recipe = Recipe.objects.get(id=recipe_id)
-    formClass = recipe_name_form_factory(initName=recipe.name,initServings=recipe.servings,initInstructions=recipe.instructions)
+    recipeName = recipe.name
+    if duplicate:
+        recipeName = "COPY " + recipeName
+    formClass = recipe_name_form_factory(initName=recipeName,initServings=recipe.servings,initInstructions=recipe.instructions)
     form = formClass()
     context = {
         'recipe': recipe,
-        'form': form
+        'form': form,
+        'duplicate': duplicate
     }
     return render(request, 'mealplanner/editRecipe.html', context)
 
-def saveRecipe(request, recipe_id):
+def saveCurrentRecipe(request, recipe_id):
+    return saveRecipe(request, recipe_id, False)
+    
+def saveAsNewRecipe(request, recipe_id):
+    return saveRecipe(request, recipe_id, True)
+
+def saveRecipe(request, recipe_id, duplicate):
     # if this is a POST request we need to process the form data
-    recipe = Recipe.objects.get(id=recipe_id)
+    originalRecipe = Recipe.objects.get(id=recipe_id)
+    if duplicate:
+        newRecipe = Recipe()
+    else:
+        newRecipe = originalRecipe
+        
     error =''
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -62,24 +84,30 @@ def saveRecipe(request, recipe_id):
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            saveRecipeFromForm(request, form, recipe)
+            saveRecipeFromForm(request, form, originalRecipe, newRecipe)
         else:
-            error = 'Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.'
-            #error = 'Invalid form.'
+            error = 'Invalid form. Your changes to recipe "' + newRecipe.name + '" were not saved.'
         
     context = {
-        'recipe': recipe,
+        'recipe': newRecipe,
         'error': error
     }
     return render(request, 'mealplanner/viewRecipe.html', context)
 
-
-
-def saveRecipeFromForm(request,form, recipe):
-    recipe.name =  form.cleaned_data['name']
-    recipe.servings = form.cleaned_data['servings']
-    recipe.instructions = form.cleaned_data['instructions']
-    recipe.save()
+def saveRecipeFromForm(request,form, originalRecipe, newRecipe):
+    newRecipe.name =  form.cleaned_data['name']
+    # TODO: change that to currently logged-in user!
+    newRecipe.author = User.objects.all()[0]
+    newRecipe.servings = form.cleaned_data['servings']
+    newRecipe.instructions = form.cleaned_data['instructions']
+    newRecipe.save()
+    
+    if (newRecipe.id != originalRecipe.id):
+        for recipeingredient in originalRecipe.recipeingredient_set.all():
+            # duplicate ingredients
+            newRecipeIng = recipeingredient.duplicate()
+            newRecipeIng.recipe = newRecipe
+            newRecipeIng.save()
     
 # ----------------------------------------------------------------------------------------------------------------
 # CALENDAR    
