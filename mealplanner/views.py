@@ -53,12 +53,7 @@ def editRecipe(request, recipe_id):
 
 def saveRecipe(request, recipe_id):
     # if this is a POST request we need to process the form data
-    if 'saveasnew' in request.POST:
-        print("SAVE AS NEW")
-        duplicate = True
-    else:
-        print("SAVE CURRENT")
-        duplicate = False
+    duplicate = ('saveasnew' in request.POST)
         
     originalRecipe = Recipe.objects.get(id=recipe_id)
     if duplicate:
