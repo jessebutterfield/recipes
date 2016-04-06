@@ -1,14 +1,16 @@
-from django.template import loader
+from django.template import Context, loader, RequestContext
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, Meal
-from mealplanner.forms import recipe_name_form_factory
+from mealplanner.models import Recipe, Meal,Author
+from mealplanner.forms import recipe_name_form_factory, info_form_factory
 
 import calendar
 
@@ -21,7 +23,9 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 # ----------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------
 # RECIPE EDITOR    
+# ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
 
 def recipeEditor(request):
@@ -96,7 +100,9 @@ def saveRecipeFromForm(request,form, originalRecipe, newRecipe):
             newRecipeIng.save()
     
 # ----------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------
 # CALENDAR    
+# ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
 mnames = "January February March April May June July August September October November December"
 mnames = mnames.split()
@@ -149,7 +155,62 @@ def month(request, year, month):
             lst.append([])
             week += 1
 
-    return render_to_response("mealplanner/index.html", dict(year=year, month=month, month_days=lst, mname=mnames[month-1]))
+    return render_to_response("mealplanner/index.html", dict(year=year, month=month, user=request.user, month_days=lst, mname=mnames[month-1]))
     
 def detailDay(request, year, month, day, commentId = False):
     print("TODO!")
+    
+# ----------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------
+# USER    
+# ----------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------
+
+    
+def postLogin(request):
+    form = AuthenticationForm(request,data=request.POST)
+    if(form.is_valid()):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        n = request.POST['next']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            ua,created = Author.objects.get_or_create(user=user)
+            if(created):
+                return HttpResponseRedirect(reverse('updateInfo'))
+            else:
+                if(n):
+                    return HttpResponseRedirect(n)
+                else:
+                    return HttpResponseRedirect(reverse('currentMonth'))
+        HttpResponse("Form was valid")
+    return HttpResponse("Form was invalid")
+
+def updateSettings(request, form = None):
+    if(not form):
+        formClass = info_form_factory(request.user)
+        form = formClass()
+    return render_to_response('mealplanner/userSettings.html', {'form':form},context_instance=RequestContext(request))
+
+def saveSettings(request):
+    user = request.user
+    formClass = info_form_factory(user)
+    form = formClass(request.POST)
+    if(form.is_valid()):
+        user.username = form.cleaned_data['username']
+        p = form.cleaned_data['password']
+        if(p):
+            user.set_password(p)
+        defaultServings = form.cleaned_data['defaultServings']
+        print("----------> default servings: " + str(defaultServings))
+        user.save()
+        author,_ = Author.objects.get_or_create(user=user)
+        author.defaultServings = defaultServings
+        author.save()
+        return HttpResponseRedirect(reverse('currentMonth'))
+    else:
+        return updateSettings(request, form)
+    
+
+

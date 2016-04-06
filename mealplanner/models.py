@@ -46,3 +46,9 @@ class Meal(models.Model):
     date = models.DateField()
     servings = models.IntegerField()
     recipe = models.ForeignKey(Recipe)
+
+class Author(models.Model):
+    user = models.OneToOneField(User)
+    defaultServings = models.IntegerField(null=True)
+    
+    

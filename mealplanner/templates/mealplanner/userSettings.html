@@ -1,0 +1,8 @@
+<p> Update your info. You will be identified by username on all other pages, so choose something 
+understandable. 
+</p>
+<form action="/mealplanner/saveSettings/" method="post">
+	{% csrf_token %}
+ 	{{ form.as_p }}
+ 	<input type="submit" value="Save" />
+</form>
