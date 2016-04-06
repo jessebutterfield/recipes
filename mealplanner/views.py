@@ -202,12 +202,14 @@ def saveSettings(request):
         p = form.cleaned_data['password']
         if(p):
             user.set_password(p)
+        user.save()
+
         defaultServings = form.cleaned_data['defaultServings']
         print("----------> default servings: " + str(defaultServings))
-        user.save()
         author,_ = Author.objects.get_or_create(user=user)
         author.defaultServings = defaultServings
         author.save()
+        
         return HttpResponseRedirect(reverse('currentMonth'))
     else:
         return updateSettings(request, form)

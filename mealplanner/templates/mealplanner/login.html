@@ -1,3 +1,15 @@
+<!-- ------------ LOGIN --------------- -->
+{% if user.username %}
+	Welcome {{user.username}} <a href = "/logout/" > Logout </a> | <a href = "/mealplanner/updateSettings/" > Update user info </a> |
+{% else %}
+	<a href = "{% url "django.contrib.auth.views.login" %}" > Login </a> | 
+{% endif %}
+<!-- ---------------------------------- -->
+
+<!-- ------ HEADER - LINKS ------------ -->
+<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
+<!-- ---------------------------------- -->
+
 <h3>Please log in</h3>
 
     <form method="post" action="/mealplanner/postLogin/">
