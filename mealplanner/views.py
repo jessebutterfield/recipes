@@ -41,34 +41,25 @@ def viewRecipe(request, recipe_id):
     
     return HttpResponse(template.render(context, request))
 
-def editCurrentRecipe(request, recipe_id):
-    return editRecipe(request, recipe_id, False)
-
-def duplicateRecipe(request, recipe_id):
-    return editRecipe(request, recipe_id, True)
-
-def editRecipe(request, recipe_id, duplicate):
+def editRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
-    recipeName = recipe.name
-    if duplicate:
-        recipeName = "COPY " + recipeName
-    formClass = recipe_name_form_factory(initName=recipeName,initServings=recipe.servings,initInstructions=recipe.instructions)
+    formClass = recipe_name_form_factory(initName=recipe.name,initServings=recipe.servings,initInstructions=recipe.instructions)
     form = formClass()
     context = {
         'recipe': recipe,
         'form': form,
-        'duplicate': duplicate
     }
     return render(request, 'mealplanner/editRecipe.html', context)
 
-def saveCurrentRecipe(request, recipe_id):
-    return saveRecipe(request, recipe_id, False)
-    
-def saveAsNewRecipe(request, recipe_id):
-    return saveRecipe(request, recipe_id, True)
-
-def saveRecipe(request, recipe_id, duplicate):
+def saveRecipe(request, recipe_id):
     # if this is a POST request we need to process the form data
+    if 'saveasnew' in request.POST:
+        print("SAVE AS NEW")
+        duplicate = True
+    else:
+        print("SAVE CURRENT")
+        duplicate = False
+        
     originalRecipe = Recipe.objects.get(id=recipe_id)
     if duplicate:
         newRecipe = Recipe()

@@ -9,8 +9,8 @@
 	{% endif %}
 	
 	<h1>View recipe</h1>
-	<h3>Recipe name: {{recipe.name}}</h3>
-	<h3>Recipe author: {{recipe.author}}</h3>
+	<h3>Name: {{recipe.name}}</h3>
+	<h3>Author: {{recipe.author}}</h3>
 	<h3>Servings: {{recipe.servings}}</h3>
 	<h3>Ingredients:</h3>
     <ul>{% for ingredient in recipe.recipeingredient_set.all %}
@@ -19,8 +19,7 @@
     </ul>
     <h3>Instructions:</h3>
     <p>{{recipe.instructions}}</p>
-    <p><a href="/mealplanner/recipe/editCurrent/{{ recipe.id }}/">Edit this recipe</a></p>
-    <p><a href="/mealplanner/recipe/duplicate/{{ recipe.id }}/">Duplicate this recipe</a></p>
+    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">Edit this recipe</a></p>
 {% else %}
     <p>No recipe found with this id.</p>
 {% endif %}

@@ -3,25 +3,14 @@
 <!--     -->
 
 {% if recipe %}
-	{% if duplicate %}
-		<h1>Duplicate recipe</h1>
-	{% else %}
-		<h1>Edit recipe</h1>
-	{% endif %}
+	<h1>Edit recipe</h1>
 	
-    {% if duplicate %}
-		<form action="/mealplanner/recipe/saveasnew/{{ recipe.id }}/" method="post">
-    		{% csrf_token %}
-    		{{ form.as_p }}
-    		<input type="submit" value="Save as new recipe" />
-		</form>
-	{% else %}
 		<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
     		{% csrf_token %}
     		{{ form.as_p }}
-    		<input type="submit" value="Save current recipe" />
+    		<input type="submit" name="savecurrent" value="Save current recipe" />
+    		<input type="submit" name="saveasnew" value="Save as new recipe" />
 		</form>
-	{% endif %}
     
     <a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>
 {% else %}
