@@ -1,12 +1,16 @@
+<!-- HEADER - LINKS -->
+<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
+<!--     -->
+
 {% if recipe %}
-	<h1>Edit recipe > {{recipe.name}}</h1>
+	<h1>Edit recipe</h1>
 	
 	<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
     	{% csrf_token %}
     	{{ form.as_p }}
     	<input type="submit" value="Submit" />
 	</form>
-    
+    <a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>
 {% else %}
     <p>No recipe found with this id.</p>
 {% endif %}
