@@ -10,16 +10,90 @@
 <a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
 <!-- ---------------------------------- -->
 
+<script type="text/javascript">
+		var ingredient_fields = ["name","quantity","unit"];
+    	function addIngredient(){ 
+            var table = document.getElementById("ingredient-container");
+            var number = table.rows.length;
+            var index = number - 1;
+            
+            // set the total number of ingredients
+            var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",number);
+            
+            //Add new input fields
+            var row = table.insertRow();
+            for	(i = 0; i < ingredient_fields.length; i++) {
+    			var cell = row.insertCell();
+            	var input = document.createElement("input");
+            	if(ingredient_fields[i] == "quantity"){
+            		input.type = "number";
+            	} else {
+            		input.type = "text";
+            	}
+            	input.name = "ingredient_" + ingredient_fields[i] + "-" + index;
+            	input.setAttribute("class", "ingredient_" + ingredient_fields[i]);
+            	cell.appendChild(input);
+			}
+			// Add limits to number field
+			var input = row.getElementsByClassName("ingredient_quantity")[0];
+            input.name = "ingredient_quantity-" + index;
+            input.setAttribute("class", "ingredient_quantity");
+            input.setAttribute("step", "any");
+            input.setAttribute("min", "0");
+            
+            //Add delete button
+            var cell = row.insertCell();
+            var d = document.createElement("p");
+            d.setAttribute("onclick","deleteIngredient(" + number +")");
+            d.innerHTML = "x";
+            d.setAttribute("style","color:blue");
+            d.setAttribute("class", "del");
+            cell.appendChild(d);
+        }
+        function deleteIngredient(index){
+        	var table = document.getElementById("ingredient-container");
+            var row = table.deleteRow(index);
+            
+            //decrement the ingredient number of subsequent fields
+            for (i = index; i < table.rows.length; i++) {
+    			row = table.rows[i];
+            	for(j = 0; j < ingredient_fields.length; j++) {
+    				var input = row.getElementsByClassName("ingredient_" + ingredient_fields[j])[0];
+    				input.name = "ingredient_" + ingredient_fields[j] + "-" + (i-1);
+    			}
+    			var d = row.getElementsByClassName("del")[0];
+				d.setAttribute("onclick","deleteIngredient(" + i +")");
+			}
+			
+			//decrease the total number of ingredients
+			var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",table.rows.length - 1);
+        }
+</script>
+
 {% if recipe %}
 	<h1>Edit recipe</h1>
 	
-		<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
-    		{% csrf_token %}
-    		{{ form.as_p }}
-    		<input type="submit" name="savecurrent" value="Save current recipe" />
-    		<input type="submit" name="saveasnew" value="Save as new recipe" />
-		</form>
-    
+	<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
+    	{% csrf_token %}
+    	{{ form.as_p }}
+    	<a href="#" id="filldetails" onclick="addIngredient()">Add ingredient</a>
+    	<table id="ingredient-container">
+    	<input id="num-ingredient" type="hidden" name="num_ingredients" value="0" />
+    	<tr><th>Name</th><th>Quantity</th><th>Units</th></tr>
+    	{% for ingredient in recipe.recipeingredient_set.all %}
+    		<tr><td><input type="text" name="ingredient_name-{{forloop.counter0}}" value="{{ingredient.name}}"></td>
+    		<td><input type="number" name="ingredient_quantity-{{forloop.counter0}}" value="{{ingredient.quantity}}" step="any" min="0"></td>
+    		<td><input type="text" name="ingredient_unit-{{forloop.counter0}}" value="{{ingredient.unit}}"></td>
+    		<td><p onclick="deleteIngredient({{forloop.counter}})" style="color:blue">x</p></td>
+    		</tr>
+    	{% endfor %}
+    	</table>
+    	
+    	<input type="submit" name="savecurrent" value="Save current recipe" />
+   		<input type="submit" name="saveasnew" value="Save as new recipe" />
+	</form>
     <a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>
 {% else %}
     <p>No recipe found with this id.</p>

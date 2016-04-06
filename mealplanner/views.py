@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, Meal,Author
+from mealplanner.models import Recipe, RecipeIngredient, Meal, Author
 from mealplanner.forms import recipe_name_form_factory, info_form_factory
 
 import calendar
@@ -58,12 +58,11 @@ def editRecipe(request, recipe_id):
 def saveRecipe(request, recipe_id):
     # if this is a POST request we need to process the form data
     duplicate = ('saveasnew' in request.POST)
-        
-    originalRecipe = Recipe.objects.get(id=recipe_id)
+
     if duplicate:
         newRecipe = Recipe()
     else:
-        newRecipe = originalRecipe
+        newRecipe = Recipe.objects.get(id=recipe_id)
         
     error =''
     if request.method == 'POST':
@@ -74,7 +73,7 @@ def saveRecipe(request, recipe_id):
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            saveRecipeFromForm(request, form, originalRecipe, newRecipe)
+            saveRecipeFromForm(request, form, newRecipe)
         else:
             error = 'Invalid form. Your changes to recipe "' + newRecipe.name + '" were not saved.'
         
@@ -84,20 +83,23 @@ def saveRecipe(request, recipe_id):
     }
     return render(request, 'mealplanner/viewRecipe.html', context)
 
-def saveRecipeFromForm(request,form, originalRecipe, newRecipe):
-    newRecipe.name =  form.cleaned_data['name']
+def saveRecipeFromForm(request,form, recipe):
+    print(request.POST)
+    recipe.name =  form.cleaned_data['name']
     # TODO: change that to currently logged-in user!
-    newRecipe.author = User.objects.all()[0]
-    newRecipe.servings = form.cleaned_data['servings']
-    newRecipe.instructions = form.cleaned_data['instructions']
-    newRecipe.save()
-    
-    if (newRecipe.id != originalRecipe.id):
-        for recipeingredient in originalRecipe.recipeingredient_set.all():
-            # duplicate ingredients
-            newRecipeIng = recipeingredient.duplicate()
-            newRecipeIng.recipe = newRecipe
-            newRecipeIng.save()
+    recipe.author = User.objects.all()[0]
+    recipe.servings = form.cleaned_data['servings']
+    recipe.instructions = form.cleaned_data['instructions']
+    num_ingredients = int(request.POST['num_ingredients'])
+    recipe.recipeingredient_set.all().delete()
+    recipe.save()
+    for i in range(num_ingredients):
+        ingredient = RecipeIngredient()
+        ingredient.recipe = recipe
+        ingredient.name = request.POST['ingredient_name-' + str(i)]
+        ingredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
+        ingredient.unit = request.POST['ingredient_unit-' + str(i)]
+        ingredient.save()
     
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
