@@ -1,7 +1,6 @@
 {% extends 'mealplanner/base.html' %}
 
 {% block body_block %}
-
 	<h1> Recipes</h1>
 	{% if recipe_list %}
 	    <ul>
@@ -12,5 +11,5 @@
 	{% else %}
 	    <p>No recipes are available.</p>
 	{% endif %}
-	
+	<a href="/mealplanner/recipe/new/">Add new recipe</a>	
 {% endblock %}

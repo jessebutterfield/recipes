@@ -92,7 +92,9 @@
 	    	{% endif %}
 	   		<input type="submit" name="saveasnew" value="Save as new recipe" />
 		</form>
-	    <a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>
+		{% if recipe.id %}
+	    	<a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>
+	    {% endif %}
 	{% else %}
 	    <p>No recipe found with this id.</p>
 	{% endif %}

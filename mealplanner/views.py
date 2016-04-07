@@ -48,8 +48,11 @@ def viewRecipe(request, recipe_id):
     return HttpResponse(template.render(context, request))
 
 @login_required
-def editRecipe(request, recipe_id):
-    recipe = Recipe.objects.get(id=recipe_id)
+def editRecipe(request, recipe_id=None):
+    if recipe_id:
+        recipe = Recipe.objects.get(id=recipe_id)
+    else:
+        recipe = Recipe()
     formClass = recipe_name_form_factory(initName=recipe.name,initServings=recipe.servings,initInstructions=recipe.instructions)
     form = formClass()
     context = {
@@ -59,7 +62,7 @@ def editRecipe(request, recipe_id):
     return render(request, 'mealplanner/editRecipe.html', context)
 
 @login_required
-def saveRecipe(request, recipe_id):
+def saveRecipe(request, recipe_id=None):
     # if this is a POST request we need to process the form data
     duplicate = ('saveasnew' in request.POST)
 
@@ -83,11 +86,7 @@ def saveRecipe(request, recipe_id):
         else:
             error = 'Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.'
         
-    context = {
-        'recipe': recipe,
-        'error': error
-    }
-    return render(request, 'mealplanner/viewRecipe.html', context)
+    return HttpResponseRedirect(reverse('mealplanner.views.viewRecipe', args=(recipe.id,)))
 
 def saveRecipeFromForm(request,form, recipe):
     print(request.POST)
