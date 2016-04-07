@@ -11,7 +11,7 @@
 <!-- ---------------------------------- -->
 
 <script type="text/javascript">
-		var ingredient_fields = ["name","quantity","unit"];
+		var ingredient_fields = ["quantity","unit","name"];
     	function addIngredient(){ 
             var table = document.getElementById("ingredient-container");
             var number = table.rows.length;
@@ -78,18 +78,22 @@
 	<form action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
     	{% csrf_token %}
     	{{ form.as_p }}
-    	<a href="#" id="filldetails" onclick="addIngredient()">Add ingredient</a>
     	<table id="ingredient-container">
     	<input id="num-ingredient" type="hidden" name="num_ingredients" value="0" />
-    	<tr><th>Name</th><th>Quantity</th><th>Units</th></tr>
+    	<tr><th>Quantity</th><th>Unit</th><th>Ingredient</th></tr>
     	{% for ingredient in recipe.recipeingredient_set.all %}
-    		<tr><td><input type="text" name="ingredient_name-{{forloop.counter0}}" value="{{ingredient.name}}"></td>
+    		<tr>
     		<td><input type="number" name="ingredient_quantity-{{forloop.counter0}}" value="{{ingredient.quantity}}" step="any" min="0"></td>
     		<td><input type="text" name="ingredient_unit-{{forloop.counter0}}" value="{{ingredient.unit}}"></td>
+    		<td><input type="text" name="ingredient_name-{{forloop.counter0}}" value="{{ingredient.name}}"></td>
     		<td><p onclick="deleteIngredient({{forloop.counter}})" style="color:blue">x</p></td>
     		</tr>
     	{% endfor %}
     	</table>
+    	<a href="#" id="filldetails" onclick="addIngredient()">Add ingredient</a>
+    	<br>
+    	<br>
+    	<br>
     	{% if user == recipe.author %}
     		<input type="submit" name="savecurrent" value="Save current recipe" />
     	{% endif %}

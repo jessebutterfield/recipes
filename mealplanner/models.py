@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 import calendar
-from collections import OrderedDict
 
 # Create your models here.
 class Recipe(models.Model):
