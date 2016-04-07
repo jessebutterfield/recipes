@@ -1,23 +1,16 @@
+{% extends 'mealplanner/base.html' %}
 
-<!-- ------------ LOGIN --------------- -->
-{% if user.username %}
-	Welcome {{user.username}} <a href = "/logout/" > Logout </a> | <a href = "/mealplanner/updateSettings/" > Update user info </a> |
-{% else %}
-	<a href = "{% url "django.contrib.auth.views.login" %}" > Login </a> | 
-{% endif %}
-<!-- ---------------------------------- -->
+{% block body_block %}
 
-<!-- ------ HEADER - LINKS ------------ -->
-<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
-<!-- ---------------------------------- -->
-
-<h1> Recipes</h1>
-{% if recipe_list %}
-    <ul>
-    {% for recipe in recipe_list %}
-        <li><a href="/mealplanner/recipe/view/{{ recipe.id }}/">{{ recipe.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No recipes are available.</p>
-{% endif %}
+	<h1> Recipes</h1>
+	{% if recipe_list %}
+	    <ul>
+	    {% for recipe in recipe_list %}
+	        <li><a href="/mealplanner/recipe/view/{{ recipe.id }}/">{{ recipe.name }}</a></li>
+	    {% endfor %}
+	    </ul>
+	{% else %}
+	    <p>No recipes are available.</p>
+	{% endif %}
+	
+{% endblock %}

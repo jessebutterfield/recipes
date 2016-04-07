@@ -1,33 +1,27 @@
-<!-- ------------ LOGIN --------------- -->
-{% if user.username %}
-	Welcome {{user.username}} <a href = "/logout/" > Logout </a> | <a href = "/mealplanner/updateSettings/" > Update user info </a> |
-{% else %}
-	<a href = "{% url "django.contrib.auth.views.login" %}" > Login </a> | 
-{% endif %}
-<!-- ---------------------------------- -->
+{% extends 'mealplanner/base.html' %}
 
-<!-- ------ HEADER - LINKS ------------ -->
-<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
-<!-- ---------------------------------- -->
+{% block body_block %}
 
-{% if recipe %}
-
-	{% if error %}
-		<h1><font color="red">{{ error }}</font></h1>
+	{% if recipe %}
+	
+		{% if error %}
+			<h1><font color="red">{{ error }}</font></h1>
+		{% endif %}
+		
+		<h1>View recipe</h1>
+		<h3>Name: {{recipe.name}}</h3>
+		<h3>Author: {{recipe.author}}</h3>
+		<h3>Servings: {{recipe.servings}}</h3>
+		<h3>Ingredients:</h3>
+	    <ul>{% for ingredient in recipe.recipeingredient_set.all %}
+	    		<li>{{ingredient.quantity}} {{ingredient.unit}}(s) of {{ingredient.name}}</li>
+	    	{% endfor %}
+	    </ul>
+	    <h3>Instructions:</h3>
+	    <p>{{recipe.instructions}}</p>
+	    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">Edit this recipe</a></p>
+	{% else %}
+	    <p>No recipe found with this id.</p>
 	{% endif %}
 	
-	<h1>View recipe</h1>
-	<h3>Name: {{recipe.name}}</h3>
-	<h3>Author: {{recipe.author}}</h3>
-	<h3>Servings: {{recipe.servings}}</h3>
-	<h3>Ingredients:</h3>
-    <ul>{% for ingredient in recipe.recipeingredient_set.all %}
-    		<li>{{ingredient.quantity}} {{ingredient.unit}}(s) of {{ingredient.name}}</li>
-    	{% endfor %}
-    </ul>
-    <h3>Instructions:</h3>
-    <p>{{recipe.instructions}}</p>
-    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">Edit this recipe</a></p>
-{% else %}
-    <p>No recipe found with this id.</p>
-{% endif %}
+{% endblock %}

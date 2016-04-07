@@ -1,20 +1,14 @@
-<!-- ------------ LOGIN --------------- -->
-{% if user.username %}
-	Welcome {{user.username}} <a href = "/logout/" > Logout </a> | <a href = "/mealplanner/updateSettings/" > Update user info </a> |
-{% else %}
-	<a href = "{% url "django.contrib.auth.views.login" %}" > Login </a> | 
-{% endif %}
-<!-- ---------------------------------- -->
+{% extends 'mealplanner/base.html' %}
 
-<!-- ------ HEADER - LINKS ------------ -->
-<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
-<!-- ---------------------------------- -->
+{% block body_block %}
 
-<p> Update your info. You will be identified by username on all other pages, so choose something 
-understandable. 
-</p>
-<form action="/mealplanner/saveSettings/" method="post">
-	{% csrf_token %}
- 	{{ form.as_p }}
- 	<input type="submit" value="Save" />
-</form>
+	<p> Update your info. You will be identified by username on all other pages, so choose something 
+	understandable. 
+	</p>
+	<form action="/mealplanner/saveSettings/" method="post">
+		{% csrf_token %}
+	 	{{ form.as_p }}
+	 	<input type="submit" value="Save" />
+	</form>
+
+{% endblock %}

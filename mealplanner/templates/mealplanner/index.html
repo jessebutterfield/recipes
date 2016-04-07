@@ -1,58 +1,52 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static "month.css" %}" />
+{% extends 'mealplanner/base.html' %}
 
-<!-- ------------ LOGIN --------------- -->
-{% if user.username %}
-	Welcome {{user.username}} <a href = "/logout/" > Logout </a> | <a href = "/mealplanner/updateSettings/" > Update user info </a> |
-{% else %}
-	<a href = "{% url "django.contrib.auth.views.login" %}" > Login </a> | 
-{% endif %}
-<!-- ---------------------------------- -->
+{% block body_block %}
 
-<!-- ------ HEADER - LINKS ------------ -->
-<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">Recipe editor</a>
-<!-- ---------------------------------- -->
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static "month.css" %}" />
 
-<h1>Calendar</h1>
+	<h1>Calendar</h1>
+	
+	<a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; Prev</a>
+	<a href= "{% url "newMonth" year month "next" %}">Next &gt;&gt;</a>
+	<h4>{{ mname }} {{ year }}</h4>
+	
+	<div class="month">
+	    <table>
+	
+	    <tr>
+	    	{% for dday in week_days %}
+	    		<td class="datenum">{{dday}}</td>
+	        {% endfor %}
+	    </tr>
+	
+	    {% for week in month_days %}
+	        <tr>
+	        {% for day, current, meals in week %}
+	
+	            <!-- TD style: empty | day | current; onClick handler and highlight  -->
+	            
+	            <td class= {% if day == 0 %}"empty"{% endif %}
+	            {% if day != 0 and not current %}"day"{% endif %}
+	            {% if day != 0 and current %}"current"{% endif %}
+	            {% if day != 0 %}
+	             >
+	                <div class="datenum"> {{ day }} </div>
+	                {% for meal in meals %}
+	                    <div title = "{{ meal }}">{{ meal }}</div>
+	                    <br />
+	                {% endfor %}
+	            {% else %}
+	            >
+	            <p> </p>
+	            {% endif %}
+	            </td>
+	        {% endfor %}
+	        </tr>
+	    {% endfor %}
+	    </table>
+	
+	    <div class="clear"></div>
+	</div>
 
-<a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; Prev</a>
-<a href= "{% url "newMonth" year month "next" %}">Next &gt;&gt;</a>
-<h4>{{ mname }} {{ year }}</h4>
-
-<div class="month">
-    <table>
-
-    <tr>
-    	{% for dday in week_days %}
-    		<td class="datenum">{{dday}}</td>
-        {% endfor %}
-    </tr>
-
-    {% for week in month_days %}
-        <tr>
-        {% for day, current, meals in week %}
-
-            <!-- TD style: empty | day | current; onClick handler and highlight  -->
-            
-            <td class= {% if day == 0 %}"empty"{% endif %}
-            {% if day != 0 and not current %}"day"{% endif %}
-            {% if day != 0 and current %}"current"{% endif %}
-            {% if day != 0 %}
-             >
-                <div class="datenum"> {{ day }} </div>
-                {% for meal in meals %}
-                    <div title = "{{ meal }}">{{ meal }}</div>
-                    <br />
-                {% endfor %}
-            {% else %}
-            >
-            <p> </p>
-            {% endif %}
-            </td>
-        {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
-
-    <div class="clear"></div>
-</div>
+{% endblock %}
