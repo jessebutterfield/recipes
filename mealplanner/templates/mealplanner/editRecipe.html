@@ -90,8 +90,9 @@
     		</tr>
     	{% endfor %}
     	</table>
-    	
-    	<input type="submit" name="savecurrent" value="Save current recipe" />
+    	{% if user == recipe.author %}
+    		<input type="submit" name="savecurrent" value="Save current recipe" />
+    	{% endif %}
    		<input type="submit" name="saveasnew" value="Save as new recipe" />
 	</form>
     <a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>

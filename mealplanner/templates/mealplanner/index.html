@@ -23,13 +23,9 @@
     <table>
 
     <tr>
-    	<td class="datenum">Sun</td>
-        <td class="datenum">Mon</td>
-        <td class="datenum">Tue</td>
-        <td class="datenum">Wed</td>
-        <td class="datenum">Thu</td>
-        <td class="datenum">Fri</td>
-        <td class="datenum">Sat</td>
+    	{% for dday in week_days %}
+    		<td class="datenum">{{dday}}</td>
+        {% endfor %}
     </tr>
 
     {% for week in month_days %}

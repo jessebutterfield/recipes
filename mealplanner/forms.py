@@ -1,4 +1,5 @@
 from django import forms
+from .models import Author, day_dictionary
     
 def recipe_name_form_factory(initName='',initServings=1,initInstructions=''):
     class RecipeNameForm(forms.Form):
@@ -15,11 +16,10 @@ def info_form_factory(user):
         username = forms.CharField(initial=user.username)
         password = forms.CharField(label='New Password',widget=forms.PasswordInput,required=False)
         check = forms.CharField(label='Retype Password',widget=forms.PasswordInput,required=False)
-        if(hasattr(user,'author') and user.author.defaultServings):
-            ini = user.author.defaultServings
-        else:
-            ini = 4
-        defaultServings = forms.IntegerField(min_value=1,initial=ini)
+        author,_ = Author.objects.get_or_create(user=user)
+        print(day_dictionary)
+        defaultServings = forms.IntegerField(min_value=1,initial=author.defaultServings)
+        firstDayOfWeek = forms.ChoiceField(choices = day_dictionary)
         
         def clean(self):
             cleaned_data = super(AuthorInfoForm, self).clean()

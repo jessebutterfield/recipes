@@ -18,13 +18,6 @@ urlpatterns = [
     url(r"^(\d+)/(\d+)/$", views.month, name="month"),
     url(r"^(\d+)/(\d+)/(\d+)/(\d+)/$", views.detailDay, name="detailDay"),
     
-    # Login
-    #url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'mealplanner/login.html'}),
-    #url(r'^logout/$', 'django.contrib.auth.views.logout',{'next_page': '/'}),
-    
-    url(r'^login/$', login, {'template_name': 'mealplanner/login.html'}),
-    url(r'^logout/$', logout,{'next_page': '/'}),
-    
     url(r'^postLogin/', views.postLogin, name="postLogin"),
     url(r'^saveSettings', views.saveSettings, name="saveSettings"),
     url(r'^updateSettings/$', views.updateSettings, name="updateSettings"),

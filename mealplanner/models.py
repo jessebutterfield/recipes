@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+import calendar
+from collections import OrderedDict
 
 # Create your models here.
 class Recipe(models.Model):
@@ -47,8 +49,10 @@ class Meal(models.Model):
     servings = models.IntegerField()
     recipe = models.ForeignKey(Recipe)
 
+day_dictionary = list(zip(range(0,7),calendar.day_name))
 class Author(models.Model):
     user = models.OneToOneField(User)
-    defaultServings = models.IntegerField(null=True)
+    defaultServings = models.IntegerField(null=True, default = 4)
+    firstDayOfWeek = models.IntegerField(choices = day_dictionary, default = 6)
     
     

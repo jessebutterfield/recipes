@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 
 from datetime import datetime,date,timedelta
 
@@ -14,6 +15,7 @@ from mealplanner.forms import recipe_name_form_factory, info_form_factory
 
 import calendar
 
+@login_required
 def index(request):
     recipe_list = Recipe.objects.all()
     template = loader.get_template('mealplanner/index.html')
@@ -28,8 +30,9 @@ def index(request):
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
 
+@login_required
 def recipeEditor(request):
-    recipe_list = Recipe.objects.all()
+    recipe_list = Recipe.objects.filter(author = request.user)
     template = loader.get_template('mealplanner/recipeEditor.html')
     context = {
         'recipe_list': recipe_list,
@@ -45,6 +48,7 @@ def viewRecipe(request, recipe_id):
     
     return HttpResponse(template.render(context, request))
 
+@login_required
 def editRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
     formClass = recipe_name_form_factory(initName=recipe.name,initServings=recipe.servings,initInstructions=recipe.instructions)
@@ -55,14 +59,17 @@ def editRecipe(request, recipe_id):
     }
     return render(request, 'mealplanner/editRecipe.html', context)
 
+@login_required
 def saveRecipe(request, recipe_id):
     # if this is a POST request we need to process the form data
     duplicate = ('saveasnew' in request.POST)
 
     if duplicate:
-        newRecipe = Recipe()
+        recipe = Recipe()
     else:
-        newRecipe = Recipe.objects.get(id=recipe_id)
+        recipe = Recipe.objects.get(id=recipe_id)
+        if(recipe.author != request.user):
+            return HttpResponse("Don't try and hack other peoples recipes")
         
     error =''
     if request.method == 'POST':
@@ -73,12 +80,12 @@ def saveRecipe(request, recipe_id):
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            saveRecipeFromForm(request, form, newRecipe)
+            saveRecipeFromForm(request, form, recipe)
         else:
-            error = 'Invalid form. Your changes to recipe "' + newRecipe.name + '" were not saved.'
+            error = 'Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.'
         
     context = {
-        'recipe': newRecipe,
+        'recipe': recipe,
         'error': error
     }
     return render(request, 'mealplanner/viewRecipe.html', context)
@@ -87,7 +94,7 @@ def saveRecipeFromForm(request,form, recipe):
     print(request.POST)
     recipe.name =  form.cleaned_data['name']
     # TODO: change that to currently logged-in user!
-    recipe.author = User.objects.all()[0]
+    recipe.author = request.user
     recipe.servings = form.cleaned_data['servings']
     recipe.instructions = form.cleaned_data['instructions']
     num_ingredients = int(request.POST['num_ingredients'])
@@ -109,6 +116,7 @@ def saveRecipeFromForm(request,form, recipe):
 mnames = "January February March April May June July August September October November December"
 mnames = mnames.split()
 
+@login_required
 def newMonth(request, year, month, change):
     year, month = int(year), int(month)
     if change in ("next", "prev"):
@@ -120,18 +128,21 @@ def newMonth(request, year, month, change):
         year, month = d.timetuple()[0:2]
     return HttpResponseRedirect(reverse('month', args=(year,month)))
 
+@login_required
 def currentMonth(request):
     year, month = date.today().timetuple()[0:2]
     return HttpResponseRedirect(reverse('month', args=(year,month)))
-    
+
+@login_required    
 def month(request, year, month):
     """Listing of days in `month`."""
     year, month = int(year), int(month)
 
 
     # init variables
-    cal = calendar.Calendar()
-    cal.setfirstweekday(6)
+    firstDay = request.user.author.firstDayOfWeek;
+    print(firstDay)
+    cal = calendar.Calendar(firstDay)
     month_days = cal.itermonthdays(year, month)
     lst = [[]]
     week = 0
@@ -145,7 +156,7 @@ def month(request, year, month):
         if day:
             #TODO: fix this to a get and a try 
             n = date(year,month,day)
-            entries = Meal.objects.filter(date=n)
+            entries = Meal.objects.filter(date=n, user=request.user)
             if(entries):
                 for u in entries.all():
                     meals.append("(" + str(u.servings) + ") " + u.recipe.name)
@@ -156,8 +167,18 @@ def month(request, year, month):
         if len(lst[week]) == 7:
             lst.append([])
             week += 1
-
-    return render_to_response("mealplanner/index.html", dict(year=year, month=month, user=request.user, month_days=lst, mname=mnames[month-1]))
+    wd = calendar.weekheader(3).split()
+    print(list(cal.iterweekdays()))
+    week_days = [wd[x] for x in cal.iterweekdays()]
+    context = {
+        'user': request.user,
+        'year': year, 
+        'month': month, 
+        'month_days': lst, 
+        'mname': mnames[month-1],
+        'week_days': week_days
+    }
+    return render_to_response("mealplanner/index.html", context )
     
 def detailDay(request, year, month, day, commentId = False):
     print("TODO!")
@@ -167,7 +188,6 @@ def detailDay(request, year, month, day, commentId = False):
 # USER    
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
-
     
 def postLogin(request):
     form = AuthenticationForm(request,data=request.POST)
@@ -189,12 +209,14 @@ def postLogin(request):
         HttpResponse("Form was valid")
     return HttpResponse("Form was invalid")
 
+@login_required
 def updateSettings(request, form = None):
     if(not form):
         formClass = info_form_factory(request.user)
         form = formClass()
     return render_to_response('mealplanner/userSettings.html', {'form':form},context_instance=RequestContext(request))
 
+@login_required
 def saveSettings(request):
     user = request.user
     formClass = info_form_factory(user)
@@ -210,6 +232,7 @@ def saveSettings(request):
         print("----------> default servings: " + str(defaultServings))
         author,_ = Author.objects.get_or_create(user=user)
         author.defaultServings = defaultServings
+        author.firstDayOfWeek = form.cleaned_data['firstDayOfWeek']
         author.save()
         
         return HttpResponseRedirect(reverse('currentMonth'))
