@@ -79,8 +79,9 @@
     	{% csrf_token %}
     	{{ form.as_p }}
     	<table id="ingredient-container">
-    	<input id="num-ingredient" type="hidden" name="num_ingredients" value="0" />
     	<tr><th>Quantity</th><th>Unit</th><th>Ingredient</th></tr>
+    	<input id="num-ingredient" type="hidden" name="num_ingredients" value="{{recipe.recipeingredient_set.all|length}}">
+    	</input>
     	{% for ingredient in recipe.recipeingredient_set.all %}
     		<tr>
     		<td><input type="number" name="ingredient_quantity-{{forloop.counter0}}" value="{{ingredient.quantity}}" step="any" min="0"></td>
