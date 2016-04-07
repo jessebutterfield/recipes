@@ -20,6 +20,8 @@ urlpatterns = [
     url(r"^(\d+)/(\d+)/$", views.month, name="month"),
     url(r"^(\d+)/(\d+)/(\d+)/(\d+)/$", views.detailDay, name="detailDay"),
     
+    url(r'signup', views.signup, name='signup'),
+    url(r'createAccount', views.createAccount, name='createAccount'),
     url(r'^postLogin/', views.postLogin, name="postLogin"),
     url(r'^saveSettings', views.saveSettings, name="saveSettings"),
     url(r'^updateSettings/$', views.updateSettings, name="updateSettings"),

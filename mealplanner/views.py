@@ -6,11 +6,12 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 from datetime import datetime,date,timedelta
 
 from mealplanner.models import Recipe, RecipeIngredient, Meal, Author
-from mealplanner.forms import recipe_name_form_factory, info_form_factory
+from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form
 
 import calendar
 
@@ -22,6 +23,29 @@ def index(request):
         'recipe_list': recipe_list,
     }
     return HttpResponse(template.render(context, request))
+
+def signup(request):
+    form = signup_form()
+    template = loader.get_template('mealplanner/signup.html')
+    context = {
+        'form': form(),
+    }
+    return HttpResponse(template.render(context, request))
+
+def createAccount(request):
+    form = signup_form();
+    form_data = form(request.POST);
+    if form_data.is_valid():
+        username = form_data.cleaned_data['username']
+        email = form_data.cleaned_data['email']
+        password = form_data.cleaned_data['password']
+        user = User.objects.create_user(username, email, password)
+        user.save()
+        user = authenticate(username=username, password=password)
+        login(request, user)
+        return HttpResponseRedirect(reverse('mealplanner.views.updateSettings'))
+    else:
+        return HttpResponseRedirect(reverse('mealplanner.views.signup'))
 
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
@@ -89,7 +113,6 @@ def saveRecipe(request, recipe_id=None):
     return HttpResponseRedirect(reverse('mealplanner.views.viewRecipe', args=(recipe.id,)))
 
 def saveRecipeFromForm(request,form, recipe):
-    print(request.POST)
     recipe.name =  form.cleaned_data['name']
     # TODO: change that to currently logged-in user!
     recipe.author = request.user

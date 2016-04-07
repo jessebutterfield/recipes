@@ -1,0 +1,13 @@
+{% extends 'mealplanner/base.html' %}
+
+{% block body_block %}
+
+	<h3>Create a new account</h3>
+	
+	    <form method="post" action="/mealplanner/createAccount/">
+	        {% csrf_token %}
+			{{ form.as_p }}
+	       <input type="submit" value="Create account" />
+	   </form>
+	   
+{% endblock %}
