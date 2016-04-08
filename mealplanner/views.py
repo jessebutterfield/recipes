@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, RecipeIngredient, Meal, Author
+from mealplanner.models import Recipe, RecipeIngredient, Meal, UserSettings
 from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form
 
 import calendar
@@ -78,7 +78,7 @@ def editRecipe(request, recipe_id=None):
 
 @login_required
 def saveRecipe(request, recipe_id=None):
-    # if this is a POST request we need to process the form data
+    # check whether this recipe needs to be saved with a new id (and author maybe)
     duplicate = ('saveasnew' in request.POST)
 
     if duplicate:
@@ -86,9 +86,8 @@ def saveRecipe(request, recipe_id=None):
     else:
         recipe = Recipe.objects.get(id=recipe_id)
         if(recipe.author != request.user):
-            return HttpResponse("Don't try and hack other peoples recipes")
+            return HttpResponse("Don't try and hack other people's recipes")
         
-    error =''
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         formClass = recipe_name_form_factory()
@@ -99,7 +98,7 @@ def saveRecipe(request, recipe_id=None):
             # process the data in form.cleaned_data as required
             saveRecipeFromForm(request, form, recipe)
         else:
-            error = 'Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.'
+            return HttpResponse('Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.')
         
     return HttpResponseRedirect(reverse('mealplanner.views.viewRecipe', args=(recipe.id,)))
 
@@ -158,7 +157,7 @@ def month(request, year, month):
 
 
     # init variables
-    firstDay = request.user.author.firstDayOfWeek;
+    firstDay = request.user.usersettings.firstDayOfWeek;
     cal = calendar.Calendar(firstDay)
     month_days = cal.itermonthdays(year, month)
     lst = [[]]
@@ -196,7 +195,25 @@ def month(request, year, month):
     }
     return render_to_response("mealplanner/index.html", context )
     
-def detailDay(request, year, month, day, commentId = False):
+@login_required
+def detailDay(request, year, month, day):
+    year, month, day = int(year), int(month), int(day)
+    editDay = date(year,month,day)
+    
+    meals = Meal.objects.filter(date=editDay, user=request.user)
+    userSettings = UserSettings.objects.get(user=request.user)
+    recipes = Recipe.objects.filter(author=request.user)
+    context = {
+        'user': request.user,
+        'meals': meals,
+        'recipes': recipes,
+        'editDay': editDay,
+        'defaultServings': userSettings.defaultServings
+    }
+    return render(request, 'mealplanner/editDay.html', context)
+
+@login_required
+def saveDay(request, year, month, day):
     print("TODO!")
     
 # ----------------------------------------------------------------------------------------------------------------
@@ -214,7 +231,7 @@ def postLogin(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
-            ua,created = Author.objects.get_or_create(user=user)
+            userSettings,created = UserSettings.objects.get_or_create(user=user)
             if(created):
                 return HttpResponseRedirect(reverse('updateInfo'))
             else:
@@ -246,10 +263,10 @@ def saveSettings(request):
 
         defaultServings = form.cleaned_data['defaultServings']
         print("----------> default servings: " + str(defaultServings))
-        author,_ = Author.objects.get_or_create(user=user)
-        author.defaultServings = defaultServings
-        author.firstDayOfWeek = form.cleaned_data['firstDayOfWeek']
-        author.save()
+        userSettings,_ = UserSettings.objects.get_or_create(user=user)
+        userSettings.defaultServings = defaultServings
+        userSettings.firstDayOfWeek = form.cleaned_data['firstDayOfWeek']
+        userSettings.save()
         
         return HttpResponseRedirect(reverse('currentMonth'))
     else:

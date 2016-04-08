@@ -1,0 +1,113 @@
+{% extends 'mealplanner/base.html' %}
+
+{% block body_block %}
+
+	<script type="text/javascript">
+			var meal_fields = ["servings","recipe"];
+			
+	    	function addMeal(){ 
+	            var table = document.getElementById("meal-container");
+	            var number = table.rows.length;
+	            var index = number - 1;
+	            //var recipes = {{ recipes }}
+	            // " + recipes.length + "
+	            console.info(">>> info HERE HERE HERE  recipes");
+	            
+	            // set the total number of meals
+	            var form_number = document.getElementById("num-meal");
+	            form_number.setAttribute("value",number);
+	            
+	            //Add new input fields
+	            var row = table.insertRow();
+	            for	(i = 0; i < meal_fields.length; i++) {
+	    			var cell = row.insertCell();
+	            	var input;
+	            	if(meal_fields[i] == "servings"){
+	            		input = document.createElement("input");
+	            		input.type = "number";
+	            	} else {
+	            		input = getSelect(); 
+	            	}
+	            	input.name = "meal_" + meal_fields[i] + "-" + index;
+	            	input.setAttribute("class", "meal_" + meal_fields[i]);
+	            	cell.appendChild(input);
+				}
+				// Add limits to number field
+				var input = row.getElementsByClassName("meal_servings")[0];
+	            input.name = "meal_servings-" + index;
+	            input.setAttribute("class", "meal_servings");
+	            input.setAttribute("step", "any");
+	            input.setAttribute("min", "0");
+	            input.value = {{ defaultServings }}
+	            
+	            //Add delete button
+	            var cell = row.insertCell();
+	            var d = document.createElement("p");
+	            d.setAttribute("onclick","deleteMeal(" + number +")");
+	            d.innerHTML = "x";
+	            d.setAttribute("style","color:blue");
+	            d.setAttribute("class", "del");
+	            cell.appendChild(d);
+	        }
+	        
+	        function deleteMeal(index){
+	        	var table = document.getElementById("meal-container");
+	            var row = table.deleteRow(index);
+	            
+	            //decrement the meal number of subsequent fields
+	            for (i = index; i < table.rows.length; i++) {
+	    			row = table.rows[i];
+	            	for(j = 0; j < meal_fields.length; j++) {
+	    				var input = row.getElementsByClassName("meal_" + meal_fields[j])[0];
+	    				input.name = "meal_" + meal_fields[j] + "-" + (i-1);
+	    			}
+	    			var d = row.getElementsByClassName("del")[0];
+					d.setAttribute("onclick","deleteMeal(" + i +")");
+				}
+				
+				//decrease the total number of meals
+				var form_number = document.getElementById("num-meal");
+	            form_number.setAttribute("value",table.rows.length - 1);
+	        }
+	        
+	        function getSelect(){
+            	var input = document.createElement("select");
+            	var i = 0;
+				{% for recipe in recipes.all %}
+					input.appendChild(new Option("{{recipe.name}}", "recipe-" + i, false, false));
+					i = i + 1;
+				{% endfor %}
+	            return input;
+	        }
+	</script>
+	
+	<h1>Edit the day's meals</h1>
+
+	<form action="/mealplanner/save/{{ editDay.year }}/{{ editDay.month }}/{{ editDay.day }}/" method="post">
+    	{% csrf_token %}
+    	<table id="meal-container">
+	    	<tr><th>Servings</th><th>Recipe</th></tr>
+			<input id="num-meal" type="hidden" name="num_meals" value="{{ meals.all|length }}">
+	    	</input>
+	    	{% for meal in meals.all %}
+	    		<tr>
+	    		<td><input type="number" name="meal_servings-{{forloop.counter0}}" value="{{meal.servings}}" step="any" min="0"></td>
+	    		<td>
+	    			<select name="meal_recipe-{{forloop.counter0}}">
+				    	<option value="BMW">BMW</option>
+				    	<option value="AUDI">AUDI</option>
+					</select>
+				</td>
+	    		<td><p onclick="deleteMeal({{forloop.counter}})" style="color:blue">x</p></td>
+	    		</tr>
+	    	{% endfor %}
+    	</table>
+    	<a href="#" id="filldetails" onclick="addMeal()">Add meal</a>
+    	<br>
+    	<br>
+    	<br>
+   		<input type="submit" name="saveday" value="Save the day" />
+	</form>
+
+	
+{% endblock %}

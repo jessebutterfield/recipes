@@ -53,12 +53,12 @@ class Meal(models.Model):
         return str(self.recipe.name)
 
 day_dictionary = list(zip(range(0,7),calendar.day_name))
-class Author(models.Model):
+
+class UserSettings(models.Model):
     user = models.OneToOneField(User)
     defaultServings = models.IntegerField(null=True, default = 4)
     firstDayOfWeek = models.IntegerField(choices = day_dictionary, default = 6)
     
     def __str__(self):
         return str(self.user.username)
-    
-    
+

@@ -6,11 +6,11 @@
 	<link rel="stylesheet" type="text/css" href="{% static "month.css" %}" />
 
 	<h1>Calendar</h1>
-	
+
 	<a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; Prev</a>
 	<a href= "{% url "newMonth" year month "next" %}">Next &gt;&gt;</a>
 	<h4>{{ mname }} {{ year }}</h4>
-	
+
 	<div class="month">
 	    <table>
 	
@@ -30,15 +30,15 @@
 	            {% if day != 0 and not current %}"day"{% endif %}
 	            {% if day != 0 and current %}"current"{% endif %}
 	            {% if day != 0 %}
-	             >
+	            	onClick="parent.location='{% url  "detailDay" year month day %}'" >
 	                <div class="datenum"> {{ day }} </div>
 	                {% for meal in meals %}
 	                    <div title = "{{ meal }}">{{ meal }}</div>
 	                    <br />
 	                {% endfor %}
 	            {% else %}
-	            >
-	            <p> </p>
+	            	>
+	            	<p> </p>
 	            {% endif %}
 	            </td>
 	        {% endfor %}
