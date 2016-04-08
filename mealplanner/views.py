@@ -31,11 +31,25 @@ def index(request):
 # ----------------------------------------------------------------------------------------------------------------
 
 @login_required
-def recipeEditor(request):
-    recipe_list = Recipe.objects.filter(author = request.user)
+def myRecipeEditor(request):
+    return recipeEditor(request, request.user.id)
+
+def recipeEditor(request, user_id):
+    author = User.objects.get(id=user_id)
+    print(user_id)
+    recipe_list = Recipe.objects.filter(author = author)
     template = loader.get_template('mealplanner/recipeEditor.html')
     context = {
+        'author': author,
         'recipe_list': recipe_list,
+    }
+    return HttpResponse(template.render(context, request))
+
+def recipeBrowser(request):
+    author_list = User.objects.all()
+    template = loader.get_template('mealplanner/recipeBrowser.html')
+    context = {
+        'author_list': author_list,
     }
     return HttpResponse(template.render(context, request))
 

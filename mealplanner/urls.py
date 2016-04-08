@@ -7,7 +7,9 @@ urlpatterns = [
     #url(r'^$', views.index, name='index'),
     
     # Recipe editor
-    url(r'recipe/editor', views.recipeEditor, name='recipeEditor'),
+    url(r'recipe/editor/(?P<user_id>[0-9]+)/', views.recipeEditor, name='recipeEditor'),
+    url(r'recipe/editor/$', views.myRecipeEditor, name='myRecipeEditor'),
+    url(r'recipe/browser/$', views.recipeBrowser, name='recipeBrowser'),
     url(r'recipe/view/(?P<recipe_id>[0-9]+)/$', views.viewRecipe, name='viewRecipe'),
     url(r'recipe/edit/(?P<recipe_id>[0-9]+)/$', views.editRecipe, name='editRecipe'),
     url(r'recipe/new', views.editRecipe, name='newRecipe'),

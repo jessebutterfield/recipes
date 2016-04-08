@@ -16,7 +16,7 @@
 	}
 </script>
 
-	<h1> Recipes</h1>
+	<h1>{%if user == author %}My {% else %}{{author.username}}'s {% endif %}Recipes</h1>
 	{% if recipe_list %}
 	    <ul>
 	    {% for recipe in recipe_list %}
@@ -28,5 +28,7 @@
 	{% else %}
 	    <p>No recipes are available.</p>
 	{% endif %}
-	<a href="/mealplanner/recipe/new/">Add new recipe</a>	
+	{% if user == author %}
+		<a href="/mealplanner/recipe/new/">Add new recipe</a>
+	{% endif %}
 {% endblock %}

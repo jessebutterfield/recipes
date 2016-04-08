@@ -19,7 +19,14 @@
 	    </ul>
 	    <h3>Instructions:</h3>
 	    <p>{{recipe.instructions}}</p>
-	    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">Edit this recipe</a></p>
+	    
+	    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">
+	    {% if user == recipe.author %}
+	    	Edit this recipe
+	    {% else %}
+	    	Add this to my recipes
+	    {% endif %}
+	    </a></p>
 	{% else %}
 	    <p>No recipe found with this id.</p>
 	{% endif %}

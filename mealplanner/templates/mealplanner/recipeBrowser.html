@@ -1,0 +1,11 @@
+{% extends 'mealplanner/base.html' %}
+
+{% block body_block %}
+
+	<h1>User recipes</h1>
+	    <ul>
+	    {% for author in author_list %}
+	        <li><a href="/mealplanner/recipe/editor/{{ author.id }}/">{{ author.username }}</a></li>
+	    {% endfor %}
+	    </ul>
+{% endblock %}
