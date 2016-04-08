@@ -24,29 +24,6 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
-def signup(request):
-    form = signup_form()
-    template = loader.get_template('mealplanner/signup.html')
-    context = {
-        'form': form(),
-    }
-    return HttpResponse(template.render(context, request))
-
-def createAccount(request):
-    form = signup_form();
-    form_data = form(request.POST);
-    if form_data.is_valid():
-        username = form_data.cleaned_data['username']
-        email = form_data.cleaned_data['email']
-        password = form_data.cleaned_data['password']
-        user = User.objects.create_user(username, email, password)
-        user.save()
-        user = authenticate(username=username, password=password)
-        login(request, user)
-        return HttpResponseRedirect(reverse('mealplanner.views.updateSettings'))
-    else:
-        return HttpResponseRedirect(reverse('mealplanner.views.signup'))
-
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
 # RECIPE EDITOR    
@@ -162,7 +139,6 @@ def month(request, year, month):
 
     # init variables
     firstDay = request.user.author.firstDayOfWeek;
-    print(firstDay)
     cal = calendar.Calendar(firstDay)
     month_days = cal.itermonthdays(year, month)
     lst = [[]]
@@ -189,7 +165,6 @@ def month(request, year, month):
             lst.append([])
             week += 1
     wd = calendar.weekheader(3).split()
-    print(list(cal.iterweekdays()))
     week_days = [wd[x] for x in cal.iterweekdays()]
     context = {
         'user': request.user,
@@ -259,6 +234,29 @@ def saveSettings(request):
         return HttpResponseRedirect(reverse('currentMonth'))
     else:
         return updateSettings(request, form)
+
+def signup(request):
+    form = signup_form()
+    template = loader.get_template('mealplanner/signup.html')
+    context = {
+        'form': form(),
+    }
+    return HttpResponse(template.render(context, request))
+
+def createAccount(request):
+    form = signup_form();
+    form_data = form(request.POST);
+    if form_data.is_valid():
+        username = form_data.cleaned_data['username']
+        email = form_data.cleaned_data['email']
+        password = form_data.cleaned_data['password']
+        user = User.objects.create_user(username, email, password)
+        user.save()
+        user = authenticate(username=username, password=password)
+        login(request, user)
+        return HttpResponseRedirect(reverse('mealplanner.views.updateSettings'))
+    else:
+        return HttpResponseRedirect(reverse('mealplanner.views.signup'))
     
 
 
