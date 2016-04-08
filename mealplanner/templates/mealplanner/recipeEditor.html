@@ -1,11 +1,28 @@
 {% extends 'mealplanner/base.html' %}
 
 {% block body_block %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript">
+	function deleteRecipe(index){ 
+		var recipe = document.getElementById("recipe-"+index);
+		var conf = window.confirm("Are you sure you want to delete " + recipe.firstChild.innerHTML + ". This cannot be undone");
+		if(conf) {
+			$.ajaxSetup({
+        		headers: { "X-CSRFToken": '{{ csrf_token }}' }
+    		});
+			recipe.parentNode.removeChild(recipe);
+			$.post("/mealplanner/recipe/delete/" + index + "/");
+		}
+	}
+</script>
+
 	<h1> Recipes</h1>
 	{% if recipe_list %}
 	    <ul>
 	    {% for recipe in recipe_list %}
-	        <li><a href="/mealplanner/recipe/view/{{ recipe.id }}/">{{ recipe.name }}</a></li>
+	        <li id="recipe-{{recipe.id}}"><a href="/mealplanner/recipe/view/{{ recipe.id }}/">{{ recipe.name }}</a>
+	        <span onclick="deleteRecipe({{recipe.id}})" style="color:blue">x</span>
+	        </li>
 	    {% endfor %}
 	    </ul>
 	{% else %}

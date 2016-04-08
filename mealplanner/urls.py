@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'recipe/new', views.editRecipe, name='newRecipe'),
     url(r'recipe/save/None/$', views.saveRecipe, name='saveRecipe'),
     url(r'recipe/save/(?P<recipe_id>[0-9]+)/$', views.saveRecipe, name='saveRecipe'),
+    url(r'recipe/delete/(?P<recipe_id>[0-9]+)/$', views.deleteRecipe, name='deleteRecipe'),
     
     # Calendar
     url(r'^$', views.currentMonth, name="currentMonth"),

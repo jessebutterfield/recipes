@@ -105,6 +105,12 @@ def saveRecipeFromForm(request,form, recipe):
         ingredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
         ingredient.unit = request.POST['ingredient_unit-' + str(i)]
         ingredient.save()
+        
+def deleteRecipe(request, recipe_id):
+    recipe = Recipe.objects.get(id=recipe_id)
+    if(recipe.author == request.user):
+        recipe.delete()
+    return HttpResponse()
     
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
@@ -258,5 +264,4 @@ def createAccount(request):
     else:
         return HttpResponseRedirect(reverse('mealplanner.views.signup'))
     
-
 
