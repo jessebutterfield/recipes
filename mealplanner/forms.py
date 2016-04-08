@@ -36,7 +36,7 @@ def info_form_factory(user):
         check = forms.CharField(label='Retype Password',widget=forms.PasswordInput,required=False)
         author,_ = Author.objects.get_or_create(user=user)
         defaultServings = forms.IntegerField(min_value=1,initial=author.defaultServings)
-        firstDayOfWeek = forms.ChoiceField(choices = day_dictionary)
+        firstDayOfWeek = forms.ChoiceField(choices = day_dictionary, initial = author.firstDayOfWeek)
         
         def clean(self):
             cleaned_data = super(AuthorInfoForm, self).clean()
