@@ -5,7 +5,7 @@
 	<script type="text/javascript">
 			var meal_fields = ["servings","recipe"];
 			
-	    	function addMeal(){ 
+			function addMeal(servingsParam, recipeNameParam){
 	            var table = document.getElementById("meal-container");
 	            var number = table.rows.length;
 	            var index = number - 1;
@@ -25,9 +25,13 @@
 						// Add limits to number field
 			            input.setAttribute("step", "any");
 			            input.setAttribute("min", "0");
-			            input.value = {{ defaultServings }}
+			            if (typeof servingsParam === 'undefined') {
+			            	input.value = {{ defaultServings }}
+			            } else {
+			            	input.value = servingsParam
+			            }
 	            	} else {
-	            		input = getSelect(); 
+	            		input = getSelect(recipeNameParam);
 	            	}
 	            	input.name = "meal_" + meal_fields[i] + "-" + index;
 	            	input.setAttribute("class", "meal_" + meal_fields[i]);
@@ -64,14 +68,24 @@
 	            form_number.setAttribute("value",table.rows.length - 1);
 	        }
 	        
-	        function getSelect(){
+	        function getSelect(recipeNameParam){
             	var input = document.createElement("select");
             	var i = 0;
 				{% for recipe in recipes.all %}
-					input.appendChild(new Option("{{recipe.name}}", "{{recipe.name}}", false, false));
+					option = new Option("{{recipe.name}}", "{{ recipe.name }}", false, false);
+					if (!(typeof recipeNameParam === 'undefined') && recipeNameParam === "{{ recipe.name }}") {
+						option.selected = 'selected'
+					}
+					input.appendChild(option);
 					i = i + 1;
 				{% endfor %}
 	            return input;
+	        }
+	        
+	        function loadMeals() {
+		        {% for meal in meals.all %}
+	        		addMeal({{ meal.servings }}, "{{ meal.recipe.name }}")
+		    	{% endfor %}
 	        }
 	</script>
 	
@@ -81,25 +95,7 @@
     	{% csrf_token %}
     	<table id="meal-container">
 	    	<tr><th>Servings</th><th>Recipe</th></tr>
-			<input id="num-meals" type="hidden" name="num_meals" value="{{ meals.all|length }}">
-	    	</input>
-	    	{% for meal in meals.all %}
-	    		<tr>
-	    		<td><input type="number" name="meal_servings-{{forloop.counter0}}" value="{{meal.servings}}" class="meal_servings" step="any" min="0"></td>
-	    		<td>
-	    			<select name="meal_recipe-{{forloop.counter0}}" class="meal_recipe">
-	    				{% for recipe in recipes.all %}
-	    					<option value="{{recipe.name}}"
-	    					{% if recipe.name == meal.recipe.name %}
-	    						selected
-	    					{% endif %}
-	    					>{{recipe.name}}</option>
-						{% endfor %}
-					</select>
-				</td>
-	    		<td><p onclick="deleteMeal({{forloop.counter}})" style="color:blue" class="del">x</p></td>
-	    		</tr>
-	    	{% endfor %}
+			<input id="num-meals" type="hidden" name="num_meals" value="{{ meals.all|length }}"/>
     	</table>
     	<a href="#" id="filldetails" onclick="addMeal()">Add meal</a>
     	<br>
@@ -107,6 +103,9 @@
     	<br>
    		<input type="submit" name="saveday" value="Save the day" />
 	</form>
-
+	
+	<script>
+		window.onload = loadMeals;
+	</script>
 	
 {% endblock %}
