@@ -214,8 +214,47 @@ def detailDay(request, year, month, day):
 
 @login_required
 def saveDay(request, year, month, day):
-    print("TODO!")
+        
+    if request.method == 'POST':
+        saveDayMeals(request, year, month, day)
+        
+    return HttpResponseRedirect(reverse('month', args=(year,month)))
+
+def saveDayMeals(request, year, month, day):
+    year, month, day = int(year), int(month), int(day)
+    editDay = date(year,month,day)
     
+    num_meals = int(request.POST['num_meals'])
+    mealsToSave = []
+    
+    for i in range(num_meals):
+        # get the Recipe
+        recipeName = request.POST['meal_recipe-' + str(i)]
+        servings = int(request.POST['meal_servings-' + str(i)])
+        recipes = Recipe.objects.filter(name=recipeName,author=request.user)
+        if (not recipes):
+            # TODO: this should be handled better, it shouldn't happen ever
+            return HttpResponse('Could not find a recipe called "' + recipeName + '". Your changes were not saved.')
+        if (len(recipes) > 1):
+            # TODO: this should be handled better, it shouldn't happen ever
+            return HttpResponse('Found more than one recipe called "' + recipeName + '". Your changes were not saved.')
+        
+        recipe = recipes[0]
+        
+        # get or update meal
+        meal = Meal()
+        meal.user = request.user
+        meal.date = editDay
+        meal.recipe = recipe
+        meal.servings = servings
+        mealsToSave.append(meal)
+            
+    # delete all current meals - we'll just resave everything
+    # only save after all meals are correctly created 
+    Meal.objects.filter(user=request.user, date=editDay).all().delete()       
+    for meal in mealsToSave:
+        meal.save()
+
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
 # USER    

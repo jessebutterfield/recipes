@@ -50,7 +50,7 @@ class Meal(models.Model):
     recipe = models.ForeignKey(Recipe)
     
     def __str__(self):
-        return str(self.recipe.name)
+        return str(str(self.servings) + "-" + self.recipe.name + "-" + str(self.date))
 
 day_dictionary = list(zip(range(0,7),calendar.day_name))
 

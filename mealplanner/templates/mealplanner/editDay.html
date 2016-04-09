@@ -9,12 +9,9 @@
 	            var table = document.getElementById("meal-container");
 	            var number = table.rows.length;
 	            var index = number - 1;
-	            //var recipes = {{ recipes }}
-	            // " + recipes.length + "
-	            console.info(">>> info HERE HERE HERE  recipes");
 	            
 	            // set the total number of meals
-	            var form_number = document.getElementById("num-meal");
+	            var form_number = document.getElementById("num-meals");
 	            form_number.setAttribute("value",number);
 	            
 	            //Add new input fields
@@ -25,6 +22,10 @@
 	            	if(meal_fields[i] == "servings"){
 	            		input = document.createElement("input");
 	            		input.type = "number";
+						// Add limits to number field
+			            input.setAttribute("step", "any");
+			            input.setAttribute("min", "0");
+			            input.value = {{ defaultServings }}
 	            	} else {
 	            		input = getSelect(); 
 	            	}
@@ -32,13 +33,6 @@
 	            	input.setAttribute("class", "meal_" + meal_fields[i]);
 	            	cell.appendChild(input);
 				}
-				// Add limits to number field
-				var input = row.getElementsByClassName("meal_servings")[0];
-	            input.name = "meal_servings-" + index;
-	            input.setAttribute("class", "meal_servings");
-	            input.setAttribute("step", "any");
-	            input.setAttribute("min", "0");
-	            input.value = {{ defaultServings }}
 	            
 	            //Add delete button
 	            var cell = row.insertCell();
@@ -66,7 +60,7 @@
 				}
 				
 				//decrease the total number of meals
-				var form_number = document.getElementById("num-meal");
+				var form_number = document.getElementById("num-meals");
 	            form_number.setAttribute("value",table.rows.length - 1);
 	        }
 	        
@@ -74,7 +68,7 @@
             	var input = document.createElement("select");
             	var i = 0;
 				{% for recipe in recipes.all %}
-					input.appendChild(new Option("{{recipe.name}}", "recipe-" + i, false, false));
+					input.appendChild(new Option("{{recipe.name}}", "{{recipe.name}}", false, false));
 					i = i + 1;
 				{% endfor %}
 	            return input;
@@ -87,15 +81,20 @@
     	{% csrf_token %}
     	<table id="meal-container">
 	    	<tr><th>Servings</th><th>Recipe</th></tr>
-			<input id="num-meal" type="hidden" name="num_meals" value="{{ meals.all|length }}">
+			<input id="num-meals" type="hidden" name="num_meals" value="{{ meals.all|length }}">
 	    	</input>
 	    	{% for meal in meals.all %}
 	    		<tr>
-	    		<td><input type="number" name="meal_servings-{{forloop.counter0}}" value="{{meal.servings}}" step="any" min="0"></td>
+	    		<td><input type="number" name="meal_servings-{{forloop.counter0}}" value="{{meal.servings}}" class="meal_servings" step="any" min="0"></td>
 	    		<td>
 	    			<select name="meal_recipe-{{forloop.counter0}}">
-				    	<option value="BMW">BMW</option>
-				    	<option value="AUDI">AUDI</option>
+	    				{% for recipe in recipes.all %}
+	    					<option value="{{recipe.name}}"
+	    					{% if recipe.name == meal.recipe.name %}
+	    						selected
+	    					{% endif %}
+	    					>{{recipe.name}}</option>
+						{% endfor %}
 					</select>
 				</td>
 	    		<td><p onclick="deleteMeal({{forloop.counter}})" style="color:blue">x</p></td>
