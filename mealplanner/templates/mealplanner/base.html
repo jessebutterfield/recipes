@@ -9,8 +9,8 @@
         <title>Meal planner</title>
     </head>
 
-    <body>
-		<div>
+	<body style="background:url({% static "produce-basket.png" %}) no-repeat center left transparent">
+    	<div>
 			{% if user.username %}
 				Welcome {{user.username}} | <a href = "/logout/"> Logout </a> | <a href = "/mealplanner/updateSettings/"> Update user info </a> |
 			{% else %}
