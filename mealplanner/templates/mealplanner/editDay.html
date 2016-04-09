@@ -87,7 +87,7 @@
 	    		<tr>
 	    		<td><input type="number" name="meal_servings-{{forloop.counter0}}" value="{{meal.servings}}" class="meal_servings" step="any" min="0"></td>
 	    		<td>
-	    			<select name="meal_recipe-{{forloop.counter0}}">
+	    			<select name="meal_recipe-{{forloop.counter0}}" class="meal_recipe">
 	    				{% for recipe in recipes.all %}
 	    					<option value="{{recipe.name}}"
 	    					{% if recipe.name == meal.recipe.name %}
@@ -97,7 +97,7 @@
 						{% endfor %}
 					</select>
 				</td>
-	    		<td><p onclick="deleteMeal({{forloop.counter}})" style="color:blue">x</p></td>
+	    		<td><p onclick="deleteMeal({{forloop.counter}})" style="color:blue" class="del">x</p></td>
 	    		</tr>
 	    	{% endfor %}
     	</table>
