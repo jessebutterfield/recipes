@@ -1,0 +1,18 @@
+.current {
+background-color:#b0c4de;
+}
+.datenum {
+font-weight:bold;
+}
+table {
+border-collapse:collapse;
+}
+
+html, body, form, fieldset, table, tr, td, img, div {
+	font-family: Trebuchet MS, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	line-height: 20px;
+}
