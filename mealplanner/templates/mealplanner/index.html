@@ -2,13 +2,28 @@
 
 {% block body_block %}
 
-	{% load staticfiles %}
-	<link rel="stylesheet" type="text/css" href="{% static "month.css" %}" />
+	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  	<script>
+	    $(function() {
+	    	$( "#datepicker-start" ).datepicker();
+	    });
+	    $(function() {
+	    	$( "#datepicker-end" ).datepicker();
+	    });
+	</script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
 	<h1>Calendar</h1>
 
 	<a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; Prev</a>
 	<a href= "{% url "newMonth" year month "next" %}">Next &gt;&gt;</a>
+	
+	<form action="/mealplanner/generateList/" method="post">
+		{% csrf_token %}
+		Start date: <input type="text" id="datepicker-start" name="start_date">End date: <input type="text" id="datepicker-end" name="end_date">
+	    <input type="submit" name="generatelist" value="Generate a shopping list"/>
+	</form>
 	<h4>{{ mname }} {{ year }}</h4>
 
 	<div class="month">
@@ -16,7 +31,7 @@
 	
 	    <tr>
 	    	{% for dday in week_days %}
-	    		<td class="datenum">{{dday}}</td>
+	    		<td class="calendartd datenum">{{dday}}</td>
 	        {% endfor %}
 	    </tr>
 	
@@ -26,9 +41,9 @@
 	
 	            <!-- TD style: empty | day | current; onClick handler and highlight  -->
 	            
-	            <td class= {% if day == 0 %}"empty"{% endif %}
-	            {% if day != 0 and not current %}"day"{% endif %}
-	            {% if day != 0 and current %}"current"{% endif %}
+	            <td class= "calendartd {% if day == 0 %}empty"{% endif %}
+	            {% if day != 0 and not current %}day"{% endif %}
+	            {% if day != 0 and current %}current"{% endif %}
 	            {% if day != 0 %}
 	            	onClick="parent.location='{% url  "detailDay" year month day %}'" >
 	                <div class="datenum"> {{ day }} </div>

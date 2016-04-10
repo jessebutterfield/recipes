@@ -2,6 +2,16 @@ from django import forms
 from .models import UserSettings, day_dictionary
 from django.contrib.auth.models import User
     
+    
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+def generate_list_form_factory():
+    class GenerateListForm(forms.Form):
+        start_date = forms.DateField(widget=DateInput())
+        end_date = forms.DateField(widget=DateInput())
+    return GenerateListForm
+    
 def recipe_name_form_factory(initName='',initServings=1,initInstructions=''):
     class RecipeNameForm(forms.Form):
         name = forms.CharField(required=True,initial=initName)
@@ -26,8 +36,6 @@ def signup_form():
                 raise forms.ValidationError('User name already in use')
             return cleaned_data
     return UserForm 
-
-
 
 def info_form_factory(user):
     class UserSettingsForm(forms.Form):

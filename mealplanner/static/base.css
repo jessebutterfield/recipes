@@ -1,11 +1,22 @@
-.current {
-background-color:#b0c4de;
+.calendartd {
+	vertical-align:text-top;
+	border-style:solid;
+	border-color:#7A5D2A;
+	border-width: 2px;
+	height:5em;
+	width:9em;
 }
+
+.current {
+	background-color:#b0c4de;
+}
+
 .datenum {
-font-weight:bold;
+	font-weight:bold;
+	height:2em;
 }
 table {
-border-collapse:collapse;
+	border-collapse:collapse;
 }
 
 html, body, form, fieldset, table, tr, td, img, div {

@@ -1,7 +1,6 @@
-from django.template import loader, RequestContext
+from django.template import loader
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
@@ -11,18 +10,17 @@ from django.contrib.auth.models import User
 from datetime import datetime,date,timedelta
 
 from mealplanner.models import Recipe, RecipeIngredient, Meal, UserSettings
-from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form
+from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
 
 import calendar
 
 @login_required
 def index(request):
     recipe_list = Recipe.objects.all()
-    template = loader.get_template('mealplanner/index.html')
     context = {
         'recipe_list': recipe_list,
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, 'mealplanner/index.html', context)
 
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
@@ -134,6 +132,28 @@ mnames = "January February March April May June July August September October No
 mnames = mnames.split()
 
 @login_required
+def generateList(request):
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        formClass = generate_list_form_factory()
+        form = formClass(request.POST)
+        
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            generateListFromForm(request, form)
+        else:
+            return HttpResponse('Invalid form.')
+        
+    return HttpResponseRedirect(reverse('currentMonth'))
+
+def generateListFromForm(request,form):
+    start = form.cleaned_data['start_date']
+    end = form.cleaned_data['end_date']
+    print("Generating a shopping list from " + str(start) + " to " + str(end))
+    # TODO: make it go to a shopping list page
+
+@login_required
 def newMonth(request, year, month, change):
     year, month = int(year), int(month)
     if change in ("next", "prev"):
@@ -193,7 +213,7 @@ def month(request, year, month):
         'mname': mnames[month-1],
         'week_days': week_days
     }
-    return render_to_response("mealplanner/index.html", context )
+    return render(request, "mealplanner/index.html", context)
     
 @login_required
 def detailDay(request, year, month, day):
@@ -286,7 +306,7 @@ def updateSettings(request, form = None):
     if(not form):
         formClass = info_form_factory(request.user)
         form = formClass()
-    return render_to_response('mealplanner/userSettings.html', {'form':form},context_instance=RequestContext(request))
+    return render(request, 'mealplanner/userSettings.html', {'form':form})
 
 @login_required
 def saveSettings(request):
