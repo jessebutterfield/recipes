@@ -44,14 +44,13 @@ class Ingredient(models.Model):
     
     
 class RecipeIngredient(models.Model):
-    name = models.CharField(max_length=200)
     ingredient = models.ForeignKey(Ingredient, null=True)
     recipe = models.ForeignKey(Recipe)
     quantity = models.FloatField()    
     unit = models.CharField(max_length=50)
     
     def __str__(self):
-        return str(self.name)
+        return str(self.ingredient.name)
     
     def duplicate(self):
         newRecipeIng = RecipeIngredient()
