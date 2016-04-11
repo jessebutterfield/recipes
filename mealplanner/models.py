@@ -26,8 +26,26 @@ class Recipe(models.Model):
             
         return newRecipe
     
+class Aisle(models.Model):
+    user = models.ForeignKey(User, null=True)
+    name = models.CharField(max_length=200)
+    order = models.IntegerField()
+    
+    def __str__(self):
+        return str(self.name)
+    
+class Ingredient(models.Model):
+    user = models.ForeignKey(User, null=True)
+    name = models.CharField(max_length=200)
+    aisle = models.ForeignKey(Aisle, null=True)
+    
+    def __str__(self):
+        return str(self.name)
+    
+    
 class RecipeIngredient(models.Model):
     name = models.CharField(max_length=200)
+    ingredient = models.ForeignKey(Ingredient, null=True)
     recipe = models.ForeignKey(Recipe)
     quantity = models.FloatField()    
     unit = models.CharField(max_length=50)

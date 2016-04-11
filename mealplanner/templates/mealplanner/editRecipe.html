@@ -59,7 +59,7 @@
 	        	{% for ingredient in recipe.recipeingredient_set.all %}
 	    		ingredient.quantity="{{ingredient.quantity}}";
 	    		ingredient.unit="{{ingredient.unit}}";
-	    		ingredient.name="{{ingredient.name}}";
+	    		ingredient.name="{{ingredient.ingredient.name}}";
 	    		addIngredient(ingredient)
 	    		{% endfor %}
 	        }

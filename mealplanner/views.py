@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, RecipeIngredient, Meal, UserSettings
+from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings
 from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
 
 import calendar
@@ -110,12 +110,14 @@ def saveRecipeFromForm(request,form, recipe):
     recipe.recipeingredient_set.all().delete()
     recipe.save()
     for i in range(num_ingredients):
-        ingredient = RecipeIngredient()
-        ingredient.recipe = recipe
-        ingredient.name = request.POST['ingredient_name-' + str(i)]
-        ingredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
-        ingredient.unit = request.POST['ingredient_unit-' + str(i)]
-        ingredient.save()
+        recipe_ingredient = RecipeIngredient()
+        recipe_ingredient.recipe = recipe
+        name = request.POST['ingredient_name-' + str(i)]
+        [ingredient,_] = Ingredient.objects.get_or_create(user=request.user,name=name)
+        recipe_ingredient.ingredient = ingredient
+        recipe_ingredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
+        recipe_ingredient.unit = request.POST['ingredient_unit-' + str(i)]
+        recipe_ingredient.save()
         
 def deleteRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
