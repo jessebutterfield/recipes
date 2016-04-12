@@ -3,77 +3,77 @@
 {% block body_block %}
 
 	<script type="text/javascript">
-			var ingredient_fields = ["quantity","unit","name"];
-	    	function addIngredient(ingredient){ 
-	            var table = document.getElementById("ingredient-container");
-	            var number = table.rows.length;
-	            var index = number - 1;
-	            
-	            // set the total number of ingredients
-	            var form_number = document.getElementById("num-ingredient");
-	            form_number.setAttribute("value",number);
-	            
-	            //Add new input fields
-	            var row = table.insertRow();
-	            for	(i = 0; i < ingredient_fields.length; i++) {
-	    			var cell = row.insertCell();
-	            	var input = document.createElement("input");
-	            	if(!(typeof ingredient === 'undefined')){
-	            		input.value = ingredient[ingredient_fields[i]];
-	            	}
-	            	if(ingredient_fields[i] == "quantity"){
-	            		input.type = "number";
-						// Add limits to number field
-			            input.setAttribute("step", "any");
-			            input.setAttribute("min", "0");
-	            	} else {
-	            		input.type = "text";
-	            	}
-	            	cell.appendChild(input);
-				}
-	            
-	            //Add delete button
-	            var cell = row.insertCell();
-	            var d = document.createElement("p");
-	            d.setAttribute("onclick","deleteIngredient(this)");
-	            d.innerHTML = "x";
-	            d.setAttribute("style","color:blue");
-	            d.setAttribute("class", "del");
-	            cell.appendChild(d);
-	        }
-	        
-	        function deleteIngredient(deleteButton){
-	        	console.log(deleteButton);
-	        	var row = deleteButton.parentNode.parentNode;
-	        	var table = row.parentNode;
-	        	console.log(row);
-	        	row.parentNode.removeChild(row);
-				
-				//decrease the total number of ingredients
-				var form_number = document.getElementById("num-ingredient");
-	            form_number.setAttribute("value",table.rows.length - 1);
-	        }
-	        
-	        function onLoad(){
-	        	var ingredient = {};
-	        	{% for ingredient in recipe.recipeingredient_set.all %}
-		    		ingredient.quantity="{{ingredient.quantity}}";
-		    		ingredient.unit="{{ingredient.unit}}";
-		    		ingredient.name="{{ingredient.ingredient.name}}";
-		    		addIngredient(ingredient)
-	    		{% endfor %}
-	        }
-	        
-	        function onFormSubmit(){
-	        	var table = document.getElementById("ingredient-container");
-	        	for (i = 1; i < table.rows.length; i++) {
-	        		var row = table.rows[i];
-	        		for (j = 0; j < ingredient_fields.length; j++) {
-	        			row.childNodes[j].childNodes[0].setAttribute("name", "ingredient_" + ingredient_fields[j] + "-" + (i-1));
-	        		}
-	        	}
-	        			
-	        }
+		var ingredient_fields = ["quantity","unit","name"];
+    	function addIngredient(ingredient){ 
+            var table = document.getElementById("ingredient-container");
+            var number = table.rows.length;
+            var index = number - 1;
+            
+            // set the total number of ingredients
+            var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",number);
+            
+            //Add new input fields
+            var row = table.insertRow();
+            for	(i = 0; i < ingredient_fields.length; i++) {
+    			var cell = row.insertCell();
+            	var input = document.createElement("input");
+            	if(!(typeof ingredient === 'undefined')){
+            		input.value = ingredient[ingredient_fields[i]];
+            	}
+            	if(ingredient_fields[i] == "quantity"){
+            		input.type = "number";
+					// Add limits to number field
+		            input.setAttribute("step", "any");
+		            input.setAttribute("min", "0");
+            	} else {
+            		input.type = "text";
+            	}
+            	cell.appendChild(input);
+			}
+            
+            //Add delete button
+            var cell = row.insertCell();
+            var d = document.createElement("p");
+            d.setAttribute("onclick","deleteIngredient(this)");
+            d.innerHTML = "x";
+            d.setAttribute("style","color:blue");
+            d.setAttribute("class", "del");
+            cell.appendChild(d);
+        }
+        
+        function deleteIngredient(deleteButton){
+        	console.log(deleteButton);
+        	var row = deleteButton.parentNode.parentNode;
+        	var table = row.parentNode;
+        	console.log(row);
+        	row.parentNode.removeChild(row);
+			
+			//decrease the total number of ingredients
+			var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",table.rows.length - 1);
+        }
+        
+        function onLoad(){
+        	var ingredient = {};
+        	{% for ingredient in recipe.recipeingredient_set.all %}
+	    		ingredient.quantity="{{ingredient.quantity}}";
+	    		ingredient.unit="{{ingredient.unit}}";
+	    		ingredient.name="{{ingredient.ingredient.name}}";
+	    		addIngredient(ingredient)
+    		{% endfor %}
+        }
+        
+        function onFormSubmit(){
+        	var table = document.getElementById("ingredient-container");
+        	for (i = 1; i < table.rows.length; i++) {
+        		var row = table.rows[i];
+        		for (j = 0; j < ingredient_fields.length; j++) {
+        			row.childNodes[j].childNodes[0].setAttribute("name", "ingredient_" + ingredient_fields[j] + "-" + (i-1));
+        		}
+        	}
+        			
+        }
 	</script>
 	
 	{% if recipe %}

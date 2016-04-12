@@ -3,90 +3,90 @@
 {% block body_block %}
 
 	<script type="text/javascript">
-			var meal_fields = ["servings","recipe"];
+		var meal_fields = ["servings","recipe"];
+		
+		function addMeal(servingsParam, recipeNameParam){
+            var table = document.getElementById("meal-container");
+            var number = table.rows.length;
+            var index = number - 1;
+            
+            // set the total number of meals
+            var form_number = document.getElementById("num-meals");
+            form_number.setAttribute("value",number);
+            
+            //Add new input fields
+            var row = table.insertRow();
+            for	(i = 0; i < meal_fields.length; i++) {
+    			var cell = row.insertCell();
+            	var input;
+            	if(meal_fields[i] == "servings"){
+            		input = document.createElement("input");
+            		input.type = "number";
+					// Add limits to number field
+		            input.setAttribute("step", "any");
+		            input.setAttribute("min", "0");
+		            if (typeof servingsParam === 'undefined') {
+		            	input.value = {{ defaultServings }}
+		            } else {
+		            	input.value = servingsParam
+		            }
+            	} else {
+            		input = getSelect(recipeNameParam);
+            	}
+            	input.name = "meal_" + meal_fields[i] + "-" + index;
+            	input.setAttribute("class", "meal_" + meal_fields[i]);
+            	cell.appendChild(input);
+			}
+            
+            //Add delete button
+            var cell = row.insertCell();
+            var d = document.createElement("p");
+            d.setAttribute("onclick","deleteMeal(" + number +")");
+            d.innerHTML = "x";
+            d.setAttribute("style","color:blue");
+            d.setAttribute("class", "del");
+            cell.appendChild(d);
+        }
+        
+        function deleteMeal(index){
+        	var table = document.getElementById("meal-container");
+            var row = table.deleteRow(index);
+            
+            //decrement the meal number of subsequent fields
+            for (i = index; i < table.rows.length; i++) {
+    			row = table.rows[i];
+            	for(j = 0; j < meal_fields.length; j++) {
+    				var input = row.getElementsByClassName("meal_" + meal_fields[j])[0];
+    				input.name = "meal_" + meal_fields[j] + "-" + (i-1);
+    			}
+    			var d = row.getElementsByClassName("del")[0];
+				d.setAttribute("onclick","deleteMeal(" + i +")");
+			}
 			
-			function addMeal(servingsParam, recipeNameParam){
-	            var table = document.getElementById("meal-container");
-	            var number = table.rows.length;
-	            var index = number - 1;
-	            
-	            // set the total number of meals
-	            var form_number = document.getElementById("num-meals");
-	            form_number.setAttribute("value",number);
-	            
-	            //Add new input fields
-	            var row = table.insertRow();
-	            for	(i = 0; i < meal_fields.length; i++) {
-	    			var cell = row.insertCell();
-	            	var input;
-	            	if(meal_fields[i] == "servings"){
-	            		input = document.createElement("input");
-	            		input.type = "number";
-						// Add limits to number field
-			            input.setAttribute("step", "any");
-			            input.setAttribute("min", "0");
-			            if (typeof servingsParam === 'undefined') {
-			            	input.value = {{ defaultServings }}
-			            } else {
-			            	input.value = servingsParam
-			            }
-	            	} else {
-	            		input = getSelect(recipeNameParam);
-	            	}
-	            	input.name = "meal_" + meal_fields[i] + "-" + index;
-	            	input.setAttribute("class", "meal_" + meal_fields[i]);
-	            	cell.appendChild(input);
+			//decrease the total number of meals
+			var form_number = document.getElementById("num-meals");
+            form_number.setAttribute("value",table.rows.length - 1);
+        }
+        
+        function getSelect(recipeNameParam){
+        	var input = document.createElement("select");
+        	var i = 0;
+			{% for recipe in recipes.all %}
+				option = new Option("{{recipe.name}}", "{{ recipe.name }}", false, false);
+				if (!(typeof recipeNameParam === 'undefined') && recipeNameParam === "{{ recipe.name }}") {
+					option.selected = 'selected'
 				}
-	            
-	            //Add delete button
-	            var cell = row.insertCell();
-	            var d = document.createElement("p");
-	            d.setAttribute("onclick","deleteMeal(" + number +")");
-	            d.innerHTML = "x";
-	            d.setAttribute("style","color:blue");
-	            d.setAttribute("class", "del");
-	            cell.appendChild(d);
-	        }
-	        
-	        function deleteMeal(index){
-	        	var table = document.getElementById("meal-container");
-	            var row = table.deleteRow(index);
-	            
-	            //decrement the meal number of subsequent fields
-	            for (i = index; i < table.rows.length; i++) {
-	    			row = table.rows[i];
-	            	for(j = 0; j < meal_fields.length; j++) {
-	    				var input = row.getElementsByClassName("meal_" + meal_fields[j])[0];
-	    				input.name = "meal_" + meal_fields[j] + "-" + (i-1);
-	    			}
-	    			var d = row.getElementsByClassName("del")[0];
-					d.setAttribute("onclick","deleteMeal(" + i +")");
-				}
-				
-				//decrease the total number of meals
-				var form_number = document.getElementById("num-meals");
-	            form_number.setAttribute("value",table.rows.length - 1);
-	        }
-	        
-	        function getSelect(recipeNameParam){
-            	var input = document.createElement("select");
-            	var i = 0;
-				{% for recipe in recipes.all %}
-					option = new Option("{{recipe.name}}", "{{ recipe.name }}", false, false);
-					if (!(typeof recipeNameParam === 'undefined') && recipeNameParam === "{{ recipe.name }}") {
-						option.selected = 'selected'
-					}
-					input.appendChild(option);
-					i = i + 1;
-				{% endfor %}
-	            return input;
-	        }
-	        
-	        function loadMeals() {
-		        {% for meal in meals.all %}
-	        		addMeal({{ meal.servings }}, "{{ meal.recipe.name }}")
-		    	{% endfor %}
-	        }
+				input.appendChild(option);
+				i = i + 1;
+			{% endfor %}
+            return input;
+        }
+        
+        function loadMeals() {
+	        {% for meal in meals.all %}
+        		addMeal({{ meal.servings }}, "{{ meal.recipe.name }}")
+	    	{% endfor %}
+        }
 	</script>
 	
 	<h1>Edit the day's meals</h1>
