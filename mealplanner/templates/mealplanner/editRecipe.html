@@ -57,10 +57,10 @@
 	        function onLoad(){
 	        	var ingredient = {};
 	        	{% for ingredient in recipe.recipeingredient_set.all %}
-	    		ingredient.quantity="{{ingredient.quantity}}";
-	    		ingredient.unit="{{ingredient.unit}}";
-	    		ingredient.name="{{ingredient.ingredient.name}}";
-	    		addIngredient(ingredient)
+		    		ingredient.quantity="{{ingredient.quantity}}";
+		    		ingredient.unit="{{ingredient.unit}}";
+		    		ingredient.name="{{ingredient.ingredient.name}}";
+		    		addIngredient(ingredient)
 	    		{% endfor %}
 	        }
 	        
@@ -83,9 +83,8 @@
 	    	{% csrf_token %}
 	    	{{ form.as_p }}
 	    	<table id="ingredient-container">
-	    	<tr><th>Quantity</th><th>Unit</th><th>Ingredient</th></tr>
-			<input id="num-ingredient" type="hidden" name="num_ingredients" value="0">
-	    	</input>
+		    	<tr><th>Quantity</th><th>Unit</th><th>Ingredient</th></tr>
+				<input id="num-ingredient" type="hidden" name="num_ingredients" value="0"/>
 	    	</table>
 	    	<a href="#" id="filldetails" onclick="addIngredient()">Add ingredient</a>
 	    	<br>

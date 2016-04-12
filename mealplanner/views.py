@@ -9,10 +9,11 @@ from django.contrib.auth.models import User
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings
+from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings, Aisle
 from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
 
 import calendar
+import collections
 
 @login_required
 def index(request):
@@ -153,31 +154,42 @@ def generateListFromForm(request,form):
     start = form.cleaned_data['start_date']
     end = form.cleaned_data['end_date']
     
-    # get all meals, build map from ingredient, to unit, to quantity
+    # get all meals, build map from aisle to ingredient, to unit, to quantity...
     meals = Meal.objects.filter(user=request.user, date__range=[ start, end])
-    ingredientToUnitToQuantity = {}
+    sortedAisles = Aisle.objects.order_by('order')
+
+    # initialize map in specific order
+    aisleToIngredientToUnitToQuantity = collections.OrderedDict()
+    for aisle in sortedAisles:
+        aisleToIngredientToUnitToQuantity[aisle.name] = {}
+    
     for meal in meals:
         for recipeingredient in meal.recipe.recipeingredient_set.all(): 
             # scale the ingredients of this recipe for this meal's servings
-            name,unit,quantity = recipeingredient.name, recipeingredient.unit,recipeingredient.quantity
+            if (not recipeingredient.ingredient.aisle):
+                aisle = "Not categorized"
+            else:
+                aisle = recipeingredient.ingredient.aisle.name
+            name,unit,quantity = recipeingredient.ingredient.name,recipeingredient.unit,recipeingredient.quantity
             scalar = meal.servings / meal.recipe.servings
             quantity = quantity * scalar
-            
-            if name not in ingredientToUnitToQuantity:
-                ingredientToUnitToQuantity[name] = {unit : quantity}
-            else :
-                unitToQuantity = ingredientToUnitToQuantity[name]
-                if unit not in unitToQuantity:
-                    unitToQuantity[unit] = quantity
-                else:
-                    unitToQuantity[unit] = unitToQuantity[unit] + quantity
+
+            if aisle not in aisleToIngredientToUnitToQuantity:
+                aisleToIngredientToUnitToQuantity[aisle] = {}
+            if name not in aisleToIngredientToUnitToQuantity[aisle]:
+                aisleToIngredientToUnitToQuantity[aisle][name] = {}
                 
-        
+            if unit not in aisleToIngredientToUnitToQuantity[aisle][name]:
+                aisleToIngredientToUnitToQuantity[aisle][name][unit] = quantity
+            else:
+                aisleToIngredientToUnitToQuantity[aisle][name][unit] = aisleToIngredientToUnitToQuantity[aisle][name][unit] + quantity
+    
+    
     context = {
         'user': request.user,
         'startDate': start,
         'endDate': end,
-        'ingredientToUnitToQuantity': ingredientToUnitToQuantity
+        'aisleToIngredientToUnitToQuantity': aisleToIngredientToUnitToQuantity
     }
     return render(request, 'mealplanner/shoppingList.html', context)
 

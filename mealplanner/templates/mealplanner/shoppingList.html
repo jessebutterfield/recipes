@@ -2,17 +2,20 @@
 
 {% block body_block %}
 
-	{% if ingredientToUnitToQuantity %}
+	{% if aisleToIngredientToUnitToQuantity %}
 		
 		<h1>{{user}}'s shopping list from {{ startDate }} to {{ endDate }}</h1>
 	    <ul>
-	    	{% for ingredient,unitToQuantity in ingredientToUnitToQuantity.items %}
-			    {% for unit,quantity in unitToQuantity.items %}
-			    	<li>{{ingredient}}</li>
-		    		<input id="{{ingredient}}-{{unit}}" type="checkbox" class="selection_checkbox" /> 
-					<label for="{{ingredient}}-{{unit}}" class="selection_label">{{ingredient}}: {{quantity|floatformat:"-3"}} {{unit}}</label>
-		    	{% endfor %}
-		    {% endfor %}
+	    	{% for aisle,ingredientToUnitToQuantity in aisleToIngredientToUnitToQuantity.items %}
+				<li>{{aisle}}</li>
+		    	{% for ingredient,unitToQuantity in ingredientToUnitToQuantity.items %}
+				    {% for unit,quantity in unitToQuantity.items %}
+			    		<input id="{{ingredient}}-{{unit}}" type="checkbox" class="selection_checkbox" /> 
+						<label for="{{ingredient}}-{{unit}}" class="selection_label">{{ingredient}}: {{quantity|floatformat:"-3"}} {{unit}}(s)</label>
+						<br>
+			    	{% endfor %}
+			    {% endfor %}
+			{% endfor %}
 	    </ul>
 	{% else %}
 	    <p>No shopping list found.</p>
