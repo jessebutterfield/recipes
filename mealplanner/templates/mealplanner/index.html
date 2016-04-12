@@ -15,16 +15,7 @@
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
 	<h1>Calendar</h1>
-
-	<a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; Prev</a>
-	<a href= "{% url "newMonth" year month "next" %}">Next &gt;&gt;</a>
-	
-	<form action="/mealplanner/generateList/" method="post">
-		{% csrf_token %}
-		Start date: <input type="text" id="datepicker-start" name="start_date">End date: <input type="text" id="datepicker-end" name="end_date">
-	    <input type="submit" name="generatelist" value="Generate a shopping list"/>
-	</form>
-	<h4>{{ mname }} {{ year }}</h4>
+	<h2> <a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; </a> - {{ mname }} {{ year }} - <a href= "{% url "newMonth" year month "next" %}">&gt;&gt;</a></h2>
 
 	<div class="month">
 	    <table>
@@ -49,7 +40,6 @@
 	                <div class="datenum"> {{ day }} </div>
 	                {% for meal in meals %}
 	                    <div title = "{{ meal }}">{{ meal }}</div>
-	                    <br />
 	                {% endfor %}
 	            {% else %}
 	            	>
@@ -63,5 +53,12 @@
 	
 	    <div class="clear"></div>
 	</div>
+	<br>
+	<form action="/mealplanner/generateList/" method="post">
+		{% csrf_token %}
+		Start date: <input type="text" id="datepicker-start" name="start_date">End date: <input type="text" id="datepicker-end" name="end_date">
+	    <input type="submit" name="generatelist" value="Generate a shopping list"/>
+	</form>
+
 
 {% endblock %}

@@ -36,7 +36,7 @@ def myRecipeEditor(request):
 def recipeEditor(request, user_id):
     author = User.objects.get(id=user_id)
     print(user_id)
-    recipe_list = Recipe.objects.filter(author = author)
+    recipe_list = Recipe.objects.filter(author = author).order_by('name')
     template = loader.get_template('mealplanner/recipeEditor.html')
     context = {
         'author': author,

@@ -7,7 +7,7 @@
 		<h1>{{user}}'s shopping list from {{ startDate }} to {{ endDate }}</h1>
 	    <ul>
 	    	{% for aisle,ingredientToUnitToQuantity in aisleToIngredientToUnitToQuantity.items %}
-				<li>{{aisle}}</li>
+				<li class="darkBrown">{{aisle}}</li>
 		    	{% for ingredient,unitToQuantity in ingredientToUnitToQuantity.items %}
 				    {% for unit,quantity in unitToQuantity.items %}
 			    		<input id="{{ingredient}}-{{unit}}" type="checkbox" class="selection_checkbox" /> 
