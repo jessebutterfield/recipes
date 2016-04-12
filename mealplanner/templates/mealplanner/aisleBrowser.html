@@ -110,8 +110,8 @@
 </script>
 
 	<h1>My Aisles</h1>
+	<table border="1"><tr>
 	{% if aisle_list %}
-	    <table border="1"><tr>
 	    {% for aisle in aisle_list %}
 	        <td><h3 id="{{aisle.name}}" ondrop="drop(event)" ondragover="allowDrop(event)" 
 	        ondragenter="highlight(event)" ondragleave="unhighlight(event)"
@@ -124,6 +124,7 @@
 	        </ul>
 	        </td>
 	    {% endfor %}
+	{% endif %}
 	    
 	    	<td id="copy-target" hidden><h3 ondrop="drop(event)" ondragover="allowDrop(event)" 
 	        ondragenter="highlight(event)" ondragleave="unhighlight(event)"
@@ -141,6 +142,5 @@
 	        </ul>
 	        </td>
 	    </tr></table>
-	{% endif %}
 		<a href="#" onclick="createAisle()">Add new aisle</a>
 {% endblock %}
