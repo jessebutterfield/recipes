@@ -1,0 +1,146 @@
+{% extends 'mealplanner/base.html' %}
+
+{% block body_block %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+	var lastDragged = '';
+	
+	$.ajaxSetup({
+	       		headers: { "X-CSRFToken": '{{ csrf_token }}' }
+	    	});
+	    	
+	
+	function deleteAisle(elem){ 
+		var aisle = elem.parentNode;
+		var conf = window.confirm("Are you sure you want to delete " + aisle.firstChild.innerHTML + ". This cannot be undone");
+		if(conf) {
+			var data = {};
+			data.aisle_name = aisle.firstChild.innerHTML;
+			$.post("/mealplanner/aisle/delete/", data);
+			var list = aisle.getElementsByClassName("ingredient-list")[0];
+			var unassignedList = document.getElementById("Unassigned").getElementsByClassName("ingredient-list")[0];
+			while(list.childNodes.length > 0){
+				unassignedList.appendChild(list.childNodes[0]);
+			}
+			aisle.parentNode.removeChild(aisle);
+			
+		}
+	}
+	
+	function highlight(ev){
+		if(lastDragged === "aisle"){
+			ev.target.parentNode.style.borderLeft = "thick solid blue"
+    	}
+	}
+	
+	function unhighlight(ev){
+		if(lastDragged === "aisle"){
+			ev.target.parentNode.style.borderLeft = ""
+    	}
+	}
+	
+	function allowDrop(ev) {
+
+    	ev.preventDefault();
+	}
+
+	function dragIngredient(ev) {
+		lastDragged = "ingredient"
+    	ev.dataTransfer.setData("text", ev.target.id);
+	}
+
+	function drop(ev) {
+    	ev.preventDefault();
+		var data = ev.dataTransfer.getData("text");
+		var aisle = ev.target.parentNode;
+		var dragged = document.getElementById(data);
+    	if(lastDragged === "ingredient"){
+	    	aisle.getElementsByClassName("ingredient-list")[0].appendChild(dragged);
+			var postData = {};
+			postData.ingredient_id = data.substring("ing-".length);
+			postData.aisle_name = ev.target.innerHTML;
+			$.post("/mealplanner/ingredient/move/", postData);
+		}
+		else {
+			unhighlight(ev);
+			aisle.parentNode.insertBefore(dragged.parentNode,aisle);
+			var postData = {};
+			postData.move_before = aisle.childNodes[0].innerHTML;
+			postData.aisle_name = dragged.innerHTML;
+			$.post("/mealplanner/aisle/move/", postData);
+		}
+	}
+	
+	function makeEditable(elem){
+		console.log("Running");
+		elem.setAttribute("contenteditable","true");
+		elem.focus();
+	}
+	
+	function changeTitle(elem){
+		if(!(elem.id === elem.innerHTML)){
+			var postData = {};
+			postData.old_name = elem.id;
+			postData.new_name = elem.innerHTML;
+			elem.id = elem.innerHTML;
+			$.post("/mealplanner/aisle/rename/", postData);
+		}
+		elem.setAttribute("contenteditable","false");
+	}
+	
+
+	function dragAisle(ev) {
+		lastDragged = "aisle"
+    	ev.dataTransfer.setData("text", ev.target.id);
+	}
+	
+	function createAisle() {
+		elem = document.getElementById("copy-target");
+		new_elem = elem.cloneNode(true);
+		new_elem.id = "";
+		new_elem.hidden = false;
+		var heading = new_elem.childNodes[0];
+		heading.setAttribute("contenteditable","true");
+		unass = document.getElementById("Unassigned");
+		unass.parentNode.insertBefore(new_elem, unass);
+		heading.focus();
+	}
+
+</script>
+
+	<h1>My Aisles</h1>
+	{% if aisle_list %}
+	    <table border="1"><tr>
+	    {% for aisle in aisle_list %}
+	        <td><h3 id="{{aisle.name}}" ondrop="drop(event)" ondragover="allowDrop(event)" 
+	        ondragenter="highlight(event)" ondragleave="unhighlight(event)"
+	        draggable="true" ondragstart="dragAisle(event)" ondblclick="makeEditable(this)" onblur="changeTitle(this)"
+	        style="display:inline">{{aisle.name}}</h3>
+	        <a href="#" onclick="deleteAisle(this)" class="delx">x</a>
+	        <ul class="ingredient-list" contenteditable="false">
+	        {% for ingredient in aisle.ingredient_set.all %}
+	        <li id="ing-{{ingredient.id}}" draggable="true" ondragstart="dragIngredient(event)">{{ingredient.name}}</li>{% endfor %}
+	        </ul>
+	        </td>
+	    {% endfor %}
+	    
+	    	<td id="copy-target" hidden><h3 ondrop="drop(event)" ondragover="allowDrop(event)" 
+	        ondragenter="highlight(event)" ondragleave="unhighlight(event)"
+	        draggable="true" ondragstart="dragAisle(event)" ondblclick="makeEditable(this)" onblur="changeTitle(this)"
+	        style="display:inline">Change Me</h3>
+	        <a href="#" onclick="deleteAisle(this)" class="delx">x</a>
+	        <ul class="ingredient-list" contenteditable="false"></ul>
+	        </td>
+	        
+	    	<td id="Unassigned"><h3 ondrop="drop(event)" ondragover="allowDrop(event)" 
+	        ondragenter="highlight(event)" ondragleave="unhighlight(event)">Unassigned</h3>
+	        <ul class="ingredient-list">
+	        {% for ingredient in unassigned_set %}
+	        <li id="ing-{{ingredient.id}}" draggable="true" ondragstart="dragIngredient(event)">{{ingredient.name}}</li>{% endfor %}
+	        </ul>
+	        </td>
+	    </tr></table>
+	{% endif %}
+		<a href="#" onclick="createAisle()">Add new aisle</a>
+{% endblock %}

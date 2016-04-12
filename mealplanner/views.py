@@ -6,10 +6,11 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Max, F
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings, Aisle
+from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, Aisle, UserSettings
 from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
 
 import calendar
@@ -124,6 +125,78 @@ def deleteRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
     if(recipe.author == request.user):
         recipe.delete()
+    return HttpResponse()
+
+@login_required
+def aisleBrowser(request):
+    aisle_list = Aisle.objects.filter(user = request.user).order_by('order')
+    unassigned = Ingredient.objects.filter(user = request.user, aisle=None)
+    template = loader.get_template('mealplanner/aisleBrowser.html')
+    context = {
+        'unassigned_set': unassigned,
+        'aisle_list': aisle_list,
+    }
+    return HttpResponse(template.render(context, request))
+
+@login_required
+def aisleRename(request):
+    old_name = request.POST['old_name']
+    new_name = request.POST['new_name']
+    if(old_name):
+        aisle = Aisle.objects.get(name=old_name, user=request.user)
+    else:
+        aisle = Aisle(user=request.user)
+        max_order = Aisle.objects.filter(user=request.user).aggregate(Max('order'))['order__max']
+        if max_order is None:
+            max_order = -1
+        aisle.order = max_order + 1
+    aisle.name = new_name
+    aisle.save()
+
+    return HttpResponse()
+
+@login_required
+def aisleMove(request):
+    print(request.POST)
+    aisle_name = request.POST['aisle_name']
+    move_before = request.POST['move_before']
+    if(aisle_name == move_before):
+        return HttpResponse()
+    aisle = Aisle.objects.get(name=aisle_name, user=request.user)
+    if(move_before=='Unassigned'):
+        b = Aisle.objects.filter(user=request.user).aggregate(Max('order'))['order__max'] + 1
+    else:  
+        b = Aisle.objects.get(name=move_before, user=request.user).order
+    if(aisle.order < b):
+        Aisle.objects.filter(user=request.user, order__gt=aisle.order, order__lt=b).update(order=F('order') - 1)
+        aisle.order = b - 1
+    else:
+        Aisle.objects.filter(user=request.user, order__gte=b, order__lt=aisle.order).update(order=F('order') + 1)
+        aisle.order = b
+    aisle.save()
+    return HttpResponse()
+
+@login_required
+def aisleDelete(request):
+    aisle_name = request.POST['aisle_name']
+    aisle = Aisle.objects.get(name=aisle_name, user=request.user)
+    Ingredient.objects.filter(aisle=aisle).update(aisle=None)
+    aisle.delete()
+    return HttpResponse()
+
+@login_required
+def ingredientMove(request):
+    ingredient_id = request.POST['ingredient_id']
+    ingredient = Ingredient.objects.get(id=ingredient_id)
+    aisle_name = request.POST['aisle_name']
+    if(aisle_name == "Unassigned"):
+        aisle = None
+    else:
+        aisle = Aisle.objects.get(name=aisle_name, user=request.user)
+        
+    if(ingredient.user == request.user):
+        ingredient.aisle = aisle
+        ingredient.save()
     return HttpResponse()
     
 # ----------------------------------------------------------------------------------------------------------------

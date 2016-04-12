@@ -10,3 +10,4 @@ admin.site.register(Ingredient)
 admin.site.register(Meal)
 admin.site.register(UserSettings)
 admin.site.register(Aisle)
+

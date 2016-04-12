@@ -16,6 +16,11 @@ urlpatterns = [
     url(r'recipe/save/None/$', views.saveRecipe, name='saveRecipe'),
     url(r'recipe/save/(?P<recipe_id>[0-9]+)/$', views.saveRecipe, name='saveRecipe'),
     url(r'recipe/delete/(?P<recipe_id>[0-9]+)/$', views.deleteRecipe, name='deleteRecipe'),
+    url(r'aisle/browser/$', views.aisleBrowser, name='aisleBrowser'),
+    url(r'ingredient/move/$', views.ingredientMove, name='ingredientMove'),
+    url(r'aisle/move/$', views.aisleMove, name='aisleMove'),
+    url(r'aisle/rename/$', views.aisleRename, name='aisleRename'),
+    url(r'aisle/delete/$', views.aisleDelete, name='aisleDelete'),
 
     # Calendar
     url(r'^$', views.currentMonth, name="currentMonth"),
