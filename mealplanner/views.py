@@ -10,7 +10,7 @@ from django.db.models import Max, F
 
 from datetime import datetime,date,timedelta
 
-from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, Aisle, UserSettings
+from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings, Aisle, DayIngredient
 from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
 
 import calendar
@@ -36,7 +36,6 @@ def myRecipeEditor(request):
 
 def recipeEditor(request, user_id):
     author = User.objects.get(id=user_id)
-    print(user_id)
     recipe_list = Recipe.objects.filter(author = author).order_by('name')
     template = loader.get_template('mealplanner/recipeEditor.html')
     context = {
@@ -235,7 +234,8 @@ def generateListFromForm(request,form):
     aisleToIngredientToUnitToQuantity = collections.OrderedDict()
     for aisle in sortedAisles:
         aisleToIngredientToUnitToQuantity[aisle.name] = {}
-    
+
+    # add ingredients from meals
     for meal in meals:
         for recipeingredient in meal.recipe.recipeingredient_set.all(): 
             # scale the ingredients of this recipe for this meal's servings
@@ -256,6 +256,25 @@ def generateListFromForm(request,form):
                 aisleToIngredientToUnitToQuantity[aisle][name][unit] = quantity
             else:
                 aisleToIngredientToUnitToQuantity[aisle][name][unit] = aisleToIngredientToUnitToQuantity[aisle][name][unit] + quantity
+
+    # add ingredients directly
+    dayIngredients = DayIngredient.objects.filter(user=request.user, date__range=[ start, end])
+    for dayIngredient in dayIngredients:
+        if (not dayIngredient.ingredient.aisle):
+            aisle = "Not categorized"
+        else:
+            aisle = dayIngredient.ingredient.aisle.name
+        name,unit,quantity = dayIngredient.ingredient.name,dayIngredient.unit,dayIngredient.quantity
+
+        if aisle not in aisleToIngredientToUnitToQuantity:
+            aisleToIngredientToUnitToQuantity[aisle] = {}
+        if name not in aisleToIngredientToUnitToQuantity[aisle]:
+            aisleToIngredientToUnitToQuantity[aisle][name] = {}
+            
+        if unit not in aisleToIngredientToUnitToQuantity[aisle][name]:
+            aisleToIngredientToUnitToQuantity[aisle][name][unit] = quantity
+        else:
+            aisleToIngredientToUnitToQuantity[aisle][name][unit] = aisleToIngredientToUnitToQuantity[aisle][name][unit] + quantity
     
     
     context = {
@@ -309,6 +328,12 @@ def month(request, year, month):
             if(entries):
                 for u in entries.all():
                     meals.append("(" + str(u.servings) + ") " + u.recipe.name)
+            entries = DayIngredient.objects.filter(date=n, user=request.user)
+            if(entries):
+                ingredientDesc = ""
+                for u in entries.all():
+                    ingredientDesc += '{0:.2g}'.format(u.quantity) + " " + u.unit + " of " + u.ingredient.name + ", "
+                meals.append(ingredientDesc[:len(ingredientDesc)-2])
             if(today.year == year and today.month == month and today.day == day):
                 current = True
 
@@ -334,11 +359,13 @@ def detailDay(request, year, month, day):
     editDay = date(year,month,day)
     
     meals = Meal.objects.filter(date=editDay, user=request.user)
+    dayIngredients = DayIngredient.objects.filter(date=editDay, user=request.user)
     userSettings = UserSettings.objects.get(user=request.user)
     recipes = Recipe.objects.filter(author=request.user)
     context = {
         'user': request.user,
         'meals': meals,
+        'dayIngredients': dayIngredients,
         'recipes': recipes,
         'editDay': editDay,
         'defaultServings': userSettings.defaultServings
@@ -347,7 +374,6 @@ def detailDay(request, year, month, day):
 
 @login_required
 def saveDay(request, year, month, day):
-        
     if request.method == 'POST':
         saveDayMeals(request, year, month, day)
         
@@ -357,9 +383,9 @@ def saveDayMeals(request, year, month, day):
     year, month, day = int(year), int(month), int(day)
     editDay = date(year,month,day)
     
+    # save the meals
     num_meals = int(request.POST['num_meals'])
     mealsToSave = []
-    
     for i in range(num_meals):
         # get the Recipe
         recipeName = request.POST['meal_recipe-' + str(i)]
@@ -387,6 +413,25 @@ def saveDayMeals(request, year, month, day):
     Meal.objects.filter(user=request.user, date=editDay).all().delete()       
     for meal in mealsToSave:
         meal.save()
+        
+    # save the day's ingredients
+    num_ingredients = int(request.POST['num_ingredients'])
+    dayIngredientsToSave = []
+    for i in range(num_ingredients):
+        name = request.POST['ingredient_name-' + str(i)]
+        dayIngredient = DayIngredient()
+        dayIngredient.user = request.user
+        dayIngredient.date = editDay
+        [ingredient,_] = Ingredient.objects.get_or_create(user=request.user,name=name)
+        dayIngredient.ingredient = ingredient
+        dayIngredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
+        dayIngredient.unit = request.POST['ingredient_unit-' + str(i)]
+        dayIngredientsToSave.append(dayIngredient)
+        
+    # delete all current day ingredients - we'll just resave everything
+    DayIngredient.objects.filter(user=request.user, date=editDay).all().delete()       
+    for dayIngredient in dayIngredientsToSave:
+        dayIngredient.save()
 
 # ----------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------
@@ -434,7 +479,6 @@ def saveSettings(request):
         user.save()
 
         defaultServings = form.cleaned_data['defaultServings']
-        print("----------> default servings: " + str(defaultServings))
         userSettings,_ = UserSettings.objects.get_or_create(user=user)
         userSettings.defaultServings = defaultServings
         userSettings.firstDayOfWeek = form.cleaned_data['firstDayOfWeek']

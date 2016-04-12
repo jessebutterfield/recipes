@@ -70,9 +70,69 @@
             return input;
         }
         
+        var ingredient_fields = ["quantity","unit","name"];
+        
+        function addIngredient(ingredient){ 
+            var table = document.getElementById("ingredient-container");
+            var number = table.rows.length;
+            var index = number - 1;
+            
+            // set the total number of ingredients
+            var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",number);
+            
+            //Add new input fields
+            var row = table.insertRow();
+            for	(i = 0; i < ingredient_fields.length; i++) {
+    			var cell = row.insertCell();
+            	var input = document.createElement("input");
+            	if(!(typeof ingredient === 'undefined')){
+            		input.value = ingredient[ingredient_fields[i]];
+            	}
+            	if(ingredient_fields[i] == "quantity"){
+            		input.type = "number";
+					// Add limits to number field
+		            input.setAttribute("step", "any");
+		            input.setAttribute("min", "0");
+            	} else {
+            		input.type = "text";
+            	}
+            	cell.appendChild(input);
+			}
+            
+            //Add delete button
+            var cell = row.insertCell();
+            var d = document.createElement("p");
+            d.setAttribute("onclick","deleteIngredient(this)");
+            d.innerHTML = "x";
+            d.setAttribute("style","color:blue");
+            d.setAttribute("class", "del");
+            cell.appendChild(d);
+        }
+        
+        function deleteIngredient(deleteButton){
+        	console.log(deleteButton);
+        	var row = deleteButton.parentNode.parentNode;
+        	var table = row.parentNode;
+        	console.log(row);
+        	table.removeChild(row);
+			
+			//decrease the total number of ingredients
+			var form_number = document.getElementById("num-ingredient");
+            form_number.setAttribute("value",table.rows.length - 1);
+        }
+        
         function onLoad() {
 	        {% for meal in meals.all %}
         		addMeal({{ meal.servings }}, "{{ meal.recipe.name }}")
+	    	{% endfor %}
+	    	
+	    	var ingredient = {};
+	        {% for dayIngredient in dayIngredients.all %}
+        		ingredient.quantity = "{{dayIngredient.quantity}}";
+	    		ingredient.unit = "{{dayIngredient.unit}}";
+	    		ingredient.name = "{{dayIngredient.ingredient.name}}";
+	    		addIngredient(ingredient)
 	    	{% endfor %}
         }
         
@@ -84,9 +144,16 @@
         			row.childNodes[j].childNodes[0].setAttribute("name", "meal_" + meal_fields[j] + "-" + (i-1));
         		}
         	}
+        	table = document.getElementById("ingredient-container");
+        	for (i = 1; i < table.rows.length; i++) {
+        		var row = table.rows[i];
+        		for (j = 0; j < ingredient_fields.length; j++) {
+        			row.childNodes[j].childNodes[0].setAttribute("name", "ingredient_" + ingredient_fields[j] + "-" + (i-1));
+        		}
+        	}
         }
 	</script>
-	
+
 	<h1>Edit the day's meals</h1>
 
 	<form onsubmit="onFormSubmit()" action="/mealplanner/save/{{ editDay.year }}/{{ editDay.month }}/{{ editDay.day }}/" method="post">
@@ -95,7 +162,12 @@
 	    	<tr><th>Servings</th><th>Recipe</th></tr>
 			<input id="num-meals" type="hidden" name="num_meals" value="0"/>
     	</table>
-    	<a href="#" id="filldetails" onclick="addMeal()">Add meal</a>
+    	<br>
+    	<table id="ingredient-container">
+	    	<tr><th>Quantity</th><th>Unit</th><th>Ingredient</th></tr>
+			<input id="num-ingredient" type="hidden" name="num_ingredients" value="0"/>
+    	</table>
+    	<a href="#" id="filldetails" onclick="addMeal()">Add meal</a> | <a href="#" id="filldetails" onclick="addIngredient()">Add ingredient</a>
     	<br>
     	<br>
     	<br>

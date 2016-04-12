@@ -58,6 +58,16 @@ class RecipeIngredient(models.Model):
         newRecipeIng.quantity = self.quantity
         newRecipeIng.unit = self.unit
         return newRecipeIng
+
+class DayIngredient(models.Model):
+    user = models.ForeignKey(User)
+    ingredient = models.ForeignKey(Ingredient, null=True)
+    date = models.DateField()
+    quantity = models.FloatField()    
+    unit = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return str(self.ingredient.name)
     
 class Meal(models.Model):
     user = models.ForeignKey(User)
