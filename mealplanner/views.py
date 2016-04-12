@@ -143,7 +143,7 @@ def generateList(request):
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            generateListFromForm(request, form)
+            return generateListFromForm(request, form)
         else:
             return HttpResponse('Invalid form.')
         
@@ -152,8 +152,34 @@ def generateList(request):
 def generateListFromForm(request,form):
     start = form.cleaned_data['start_date']
     end = form.cleaned_data['end_date']
-    print("Generating a shopping list from " + str(start) + " to " + str(end))
-    # TODO: make it go to a shopping list page
+    
+    # get all meals, build map from ingredient, to unit, to quantity
+    meals = Meal.objects.filter(user=request.user, date__range=[ start, end])
+    ingredientToUnitToQuantity = {}
+    for meal in meals:
+        for recipeingredient in meal.recipe.recipeingredient_set.all(): 
+            # scale the ingredients of this recipe for this meal's servings
+            name,unit,quantity = recipeingredient.name, recipeingredient.unit,recipeingredient.quantity
+            scalar = meal.servings / meal.recipe.servings
+            quantity = quantity * scalar
+            
+            if name not in ingredientToUnitToQuantity:
+                ingredientToUnitToQuantity[name] = {unit : quantity}
+            else :
+                unitToQuantity = ingredientToUnitToQuantity[name]
+                if unit not in unitToQuantity:
+                    unitToQuantity[unit] = quantity
+                else:
+                    unitToQuantity[unit] = unitToQuantity[unit] + quantity
+                
+        
+    context = {
+        'user': request.user,
+        'startDate': start,
+        'endDate': end,
+        'ingredientToUnitToQuantity': ingredientToUnitToQuantity
+    }
+    return render(request, 'mealplanner/shoppingList.html', context)
 
 @login_required
 def newMonth(request, year, month, change):

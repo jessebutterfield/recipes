@@ -1,0 +1,21 @@
+{% extends 'mealplanner/base.html' %}
+
+{% block body_block %}
+
+	{% if ingredientToUnitToQuantity %}
+		
+		<h1>{{user}}'s shopping list from {{ startDate }} to {{ endDate }}</h1>
+	    <ul>
+	    	{% for ingredient,unitToQuantity in ingredientToUnitToQuantity.items %}
+			    {% for unit,quantity in unitToQuantity.items %}
+			    	<li>{{ingredient}}</li>
+		    		<input id="{{ingredient}}-{{unit}}" type="checkbox" class="selection_checkbox" /> 
+					<label for="{{ingredient}}-{{unit}}" class="selection_label">{{ingredient}}: {{quantity|floatformat:"-3"}} {{unit}}</label>
+		    	{% endfor %}
+		    {% endfor %}
+	    </ul>
+	{% else %}
+	    <p>No shopping list found.</p>
+	{% endif %}
+	
+{% endblock %}
