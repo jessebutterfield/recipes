@@ -108,18 +108,38 @@ def saveRecipeFromForm(request,form, recipe):
     recipe.servings = form.cleaned_data['servings']
     recipe.instructions = form.cleaned_data['instructions']
     num_ingredients = int(request.POST['num_ingredients'])
-    recipe.recipeingredient_set.all().delete()
-    recipe.save()
+
+    ingredientsToSave = []
     for i in range(num_ingredients):
         recipe_ingredient = RecipeIngredient()
-        recipe_ingredient.recipe = recipe
         name = request.POST['ingredient_name-' + str(i)]
+        # get all inputs
         [ingredient,_] = Ingredient.objects.get_or_create(user=request.user,name=name)
-        recipe_ingredient.ingredient = ingredient
-        recipe_ingredient.quantity = float(request.POST['ingredient_quantity-' + str(i)])
-        recipe_ingredient.unit = request.POST['ingredient_unit-' + str(i)]
-        recipe_ingredient.save()
-        
+        quantityStr = request.POST['ingredient_quantity-' + str(i)]
+        unit = request.POST['ingredient_unit-' + str(i)]
+        # validate before saving
+        if isfloat(quantityStr) and ingredient:
+            recipe_ingredient.quantity = float(quantityStr)
+            recipe_ingredient.ingredient = ingredient
+            recipe_ingredient.unit = unit 
+            ingredientsToSave.append(recipe_ingredient)
+        else:
+            print("Could not save invalid quantity-unit-ingredient " + quantityStr + "-" + unit + "-" + name)
+            
+    # only delete once you've built a list of valid ingredients to save
+    recipe.save()
+    recipe.recipeingredient_set.all().delete()
+    for ingredientToSave in ingredientsToSave:
+        ingredientToSave.recipe = recipe
+        ingredientToSave.save()
+            
+def isfloat(value):
+    try:    
+        float(value)
+        return True
+    except ValueError:
+        return False
+  
 def deleteRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
     if(recipe.author == request.user):

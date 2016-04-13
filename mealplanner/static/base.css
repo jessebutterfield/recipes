@@ -15,6 +15,11 @@
 	border-width: 0px;
 }
 
+.error {
+	border-width: 2px;
+	border-color: red;
+}
+
 .datenum {
 	font-weight:bold;
 	height:2em;

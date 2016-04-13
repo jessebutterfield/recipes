@@ -41,6 +41,8 @@
             d.setAttribute("style","color:blue");
             d.setAttribute("class", "del");
             cell.appendChild(d);
+            
+            validateRow(row);
         }
         
         function deleteIngredient(deleteButton){
@@ -53,6 +55,8 @@
 			//decrease the total number of ingredients
 			var form_number = document.getElementById("num-ingredient");
             form_number.setAttribute("value",table.rows.length - 1);
+            
+            validateForm();
         }
         
         function onLoad(){
@@ -66,6 +70,11 @@
         }
         
         function onFormSubmit(){
+        	console.log("CALLING ON FORM SUBMIT");
+        	if (!validateForm()) {
+        		console.log("FORM IS INVALID");
+        		return false;
+        	}
         	var table = document.getElementById("ingredient-container");
         	for (i = 1; i < table.rows.length; i++) {
         		var row = table.rows[i];
@@ -73,14 +82,70 @@
         			row.childNodes[j].childNodes[0].setAttribute("name", "ingredient_" + ingredient_fields[j] + "-" + (i-1));
         		}
         	}
-        			
+        	return true;
         }
+        
+        function validateForm() {
+        	var table = document.getElementById("ingredient-container");
+        	isFormValid = true;
+        	for (i = 1; i < table.rows.length; i++) {
+        		var row = table.rows[i];
+        		isRowValid = validateRow(row);
+        		if (!isRowValid) {
+        			isFormValid = false;
+        		}
+        	}
+	        document.getElementById('savecurrent').disabled = !isFormValid;
+	        document.getElementById('saveasnew').disabled = !isFormValid;
+        	return isFormValid;
+		}
+		
+		function validateRow(row) {
+			isRowValid = true;
+			for (j = 0; j < ingredient_fields.length; j++) {
+    			input = row.childNodes[j].childNodes[0];
+    			isInputValid = validateInput(input, j);
+    			if (isInputValid) {
+    				input.className = "";
+    			} else {
+    				input.className = "error";
+    				isRowValid = false;
+    			}
+    		}
+    		if (!isRowValid) {
+		        document.getElementById('savecurrent').disabled = "disabled";
+		        document.getElementById('saveasnew').disabled = "disabled";
+		    }
+    		return isRowValid;
+		}
+		
+		function validateInput(input, j) {
+			// unit can be anything
+			if (ingredient_fields[j] == "unit") {
+				return true;
+			}
+			
+			// validate that quantity and ingredient are not empty
+			if (input.value == "") {
+				return false;
+			} else {
+				if (ingredient_fields[j] == "quantity") {
+					// validate that the quantity is not empty, and a number
+					if (isNaN(parseFloat(input.value))) {
+						// not a valid float 
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		
 	</script>
 	
 	{% if recipe %}
 		<h1>Edit recipe</h1>
 		
-		<form onsubmit="onFormSubmit()" action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
+		<form onsubmit="return onFormSubmit();" onchange="return validateForm();" action="/mealplanner/recipe/save/{{ recipe.id }}/" method="post">
 	    	{% csrf_token %}
 	    	{{ form.as_p }}
 	    	<table id="ingredient-container">
@@ -92,9 +157,9 @@
 	    	<br>
 	    	<br>
 	    	{% if user == recipe.author %}
-	    		<input type="submit" name="savecurrent" value="Save current recipe" />
+	    		<input type="submit" name="savecurrent" id="savecurrent" value="Save current recipe"/>
 	    	{% endif %}
-	   		<input type="submit" name="saveasnew" value="Save as new recipe" />
+	   		<input type="submit" name="saveasnew" id="saveasnew" value="Save as new recipe"/>
 		</form>
 		{% if recipe.id %}
 	    	<a href="/mealplanner/recipe/view/{{ recipe.id }}">Back to recipe</a>

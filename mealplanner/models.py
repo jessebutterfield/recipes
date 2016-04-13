@@ -49,7 +49,7 @@ class RecipeIngredient(models.Model):
     unit = models.CharField(max_length=50)
     
     def __str__(self):
-        return str(self.ingredient.name)
+        return str(self.ingredient.name) + "-" + str(self.recipe.name)
     
     def duplicate(self):
         newRecipeIng = RecipeIngredient()
