@@ -65,6 +65,8 @@ def viewRecipe(request, recipe_id):
 def editRecipe(request, recipe_id=None):
     if recipe_id:
         recipe = Recipe.objects.get(id=recipe_id)
+        if (recipe.author != request.user):
+            recipe.name = recipe.author.username + "'s " + recipe.name
     else:
         recipe = Recipe()
     formClass = recipe_name_form_factory(initName=recipe.name,initServings=recipe.servings,initInstructions=recipe.instructions)
@@ -103,7 +105,6 @@ def saveRecipe(request, recipe_id=None):
 
 def saveRecipeFromForm(request,form, recipe):
     recipe.name =  form.cleaned_data['name']
-    # TODO: change that to currently logged-in user!
     recipe.author = request.user
     recipe.servings = form.cleaned_data['servings']
     recipe.instructions = form.cleaned_data['instructions']
