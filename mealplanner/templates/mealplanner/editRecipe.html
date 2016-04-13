@@ -95,7 +95,9 @@
         			isFormValid = false;
         		}
         	}
-	        document.getElementById('savecurrent').disabled = !isFormValid;
+        	if (document.getElementById("savecurrent")) {
+	        	document.getElementById('savecurrent').disabled = !isFormValid;
+	        }
 	        document.getElementById('saveasnew').disabled = !isFormValid;
         	return isFormValid;
 		}
@@ -113,7 +115,9 @@
     			}
     		}
     		if (!isRowValid) {
-		        document.getElementById('savecurrent').disabled = "disabled";
+    			if (document.getElementById("savecurrent")) {
+		        	document.getElementById('savecurrent').disabled = "disabled";
+		        }
 		        document.getElementById('saveasnew').disabled = "disabled";
 		    }
     		return isRowValid;
