@@ -249,7 +249,7 @@ def generateListFromForm(request,form):
     
     # get all meals, build map from aisle to ingredient, to unit, to quantity...
     meals = Meal.objects.filter(user=request.user, date__range=[ start, end])
-    sortedAisles = Aisle.objects.order_by('order')
+    sortedAisles = Aisle.objects.filter(user=request.user).order_by('order')
 
     # initialize map in specific order
     aisleToIngredientToUnitToQuantity = collections.OrderedDict()
