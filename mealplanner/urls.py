@@ -1,11 +1,10 @@
 from django.conf.urls import url
-from django.contrib.auth.views import login, logout
 
-from . import views
+from . import views, user_info_views, calendar_views
 
 urlpatterns = [
     #url(r'^$', views.index, name='index'),
-    
+
     # Recipe editor
     url(r'recipe/editor/(?P<user_id>[0-9]+)/', views.recipeEditor, name='recipeEditor'),
     url(r'recipe/editor/$', views.myRecipeEditor, name='myRecipeEditor'),
@@ -23,17 +22,17 @@ urlpatterns = [
     url(r'aisle/delete/$', views.aisleDelete, name='aisleDelete'),
 
     # Calendar
-    url(r'^$', views.currentMonth, name="currentMonth"),
-    url(r"^(\d+)/(\d+)/(prev|next)$", views.newMonth, name="newMonth"),
-    url(r"^(\d+)/(\d+)/$", views.month, name="month"),
-    url(r"^(\d+)/(\d+)/(\d+)/$", views.detailDay, name="detailDay"),
-    url(r"^save/(\d+)/(\d+)/(\d+)/$", views.saveDay, name="saveDay"),
-    url(r'generateList', views.generateList, name='generateList'),
-    
+    url(r'^$', calendar_views.currentMonth, name="currentMonth"),
+    url(r"^(\d+)/(\d+)/(prev|next)$", calendar_views.newMonth, name="newMonth"),
+    url(r"^(\d+)/(\d+)/$", calendar_views.month, name="month"),
+    url(r"^(\d+)/(\d+)/(\d+)/$", calendar_views.detailDay, name="detailDay"),
+    url(r"^save/(\d+)/(\d+)/(\d+)/$", calendar_views.saveDay, name="saveDay"),
+    url(r'generateList', calendar_views.generateList, name='generateList'),
+
     # User settings and login
-    url(r'signup', views.signup, name='signup'),
-    url(r'createAccount', views.createAccount, name='createAccount'),
-    url(r'^postLogin/', views.postLogin, name="postLogin"),
-    url(r'^saveSettings', views.saveSettings, name="saveSettings"),
-    url(r'^updateSettings/$', views.updateSettings, name="updateSettings"),
+    url(r'signup', user_info_views.signup, name='signup'),
+    url(r'createAccount', user_info_views.createAccount, name='createAccount'),
+    url(r'^postLogin/', user_info_views.postLogin, name="postLogin"),
+    url(r'^saveSettings', user_info_views.saveSettings, name="saveSettings"),
+    url(r'^updateSettings/$', user_info_views.updateSettings, name="updateSettings"),
 ]
