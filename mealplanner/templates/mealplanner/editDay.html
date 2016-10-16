@@ -60,7 +60,7 @@
         	var input = document.createElement("select");
         	var i = 0;
 			{% for recipe in recipes.all %}
-				option = new Option("{{recipe.name||escapejs}}", "{{ recipe.name||escapejs }}", false, false);
+				option = new Option("{{recipe.name|escapejs}}", "{{ recipe.name|escapejs }}", false, false);
 				if (!(typeof recipeNameParam === 'undefined') && recipeNameParam === "{{ recipe.name }}") {
 					option.selected = 'selected'
 				}
