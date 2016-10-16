@@ -4,16 +4,16 @@
 
 	<script type="text/javascript">
 		var meal_fields = ["servings","recipe"];
-		
+
 		function addMeal(servingsParam, recipeNameParam){
             var table = document.getElementById("meal-container");
             var number = table.rows.length;
             var index = number - 1;
-            
+
             // set the total number of meals
             var form_number = document.getElementById("num-meals");
             form_number.setAttribute("value",number);
-            
+
             //Add new input fields
             var row = table.insertRow();
             for	(i = 0; i < meal_fields.length; i++) {
@@ -35,7 +35,7 @@
             	}
             	cell.appendChild(input);
 			}
-            
+
             //Add delete button
             var cell = row.insertCell();
             var d = document.createElement("p");
@@ -45,22 +45,22 @@
             d.setAttribute("class", "del");
             cell.appendChild(d);
         }
-        
+
         function deleteMeal(deleteButton){
 			var row = deleteButton.parentNode.parentNode;
         	var table = row.parentNode;
         	table.removeChild(row);
-			
+
 			//decrease the total number of meals
 			var form_number = document.getElementById("num-meals");
             form_number.setAttribute("value",table.rows.length - 1);
         }
-        
+
         function getSelect(recipeNameParam){
         	var input = document.createElement("select");
         	var i = 0;
 			{% for recipe in recipes.all %}
-				option = new Option("{{recipe.name|safe}}", "{{ recipe.name|safe }}", false, false);
+				option = new Option("{{recipe.name||escapejs}}", "{{ recipe.name||escapejs }}", false, false);
 				if (!(typeof recipeNameParam === 'undefined') && recipeNameParam === "{{ recipe.name }}") {
 					option.selected = 'selected'
 				}
@@ -69,18 +69,18 @@
 			{% endfor %}
             return input;
         }
-        
+
         var ingredient_fields = ["quantity","unit","name"];
-        
-        function addIngredient(ingredient){ 
+
+        function addIngredient(ingredient){
             var table = document.getElementById("ingredient-container");
             var number = table.rows.length;
             var index = number - 1;
-            
+
             // set the total number of ingredients
             var form_number = document.getElementById("num-ingredient");
             form_number.setAttribute("value",number);
-            
+
             //Add new input fields
             var row = table.insertRow();
             for	(i = 0; i < ingredient_fields.length; i++) {
@@ -99,7 +99,7 @@
             	}
             	cell.appendChild(input);
 			}
-            
+
             //Add delete button
             var cell = row.insertCell();
             var d = document.createElement("p");
@@ -109,33 +109,33 @@
             d.setAttribute("class", "del");
             cell.appendChild(d);
         }
-        
+
         function deleteIngredient(deleteButton){
         	console.log(deleteButton);
         	var row = deleteButton.parentNode.parentNode;
         	var table = row.parentNode;
         	console.log(row);
         	table.removeChild(row);
-			
+
 			//decrease the total number of ingredients
 			var form_number = document.getElementById("num-ingredient");
             form_number.setAttribute("value",table.rows.length - 1);
         }
-        
+
         function onLoad() {
 	        {% for meal in meals.all %}
         		addMeal({{ meal.servings }}, "{{ meal.recipe.name }}")
 	    	{% endfor %}
-	    	
+
 	    	var ingredient = {};
 	        {% for dayIngredient in dayIngredients.all %}
-        		ingredient.quantity = "{{dayIngredient.quantity}}";
-	    		ingredient.unit = "{{dayIngredient.unit}}";
-	    		ingredient.name = "{{dayIngredient.ingredient.name}}";
+        		ingredient.quantity = "{{dayIngredient.quantity|escapejs}}";
+	    		ingredient.unit = "{{dayIngredient.unit|escapejs}}";
+	    		ingredient.name = "{{dayIngredient.ingredient.name|escapejs}}";
 	    		addIngredient(ingredient)
 	    	{% endfor %}
         }
-        
+
         function onFormSubmit(){
         	var table = document.getElementById("meal-container");
         	for (i = 1; i < table.rows.length; i++) {
@@ -173,9 +173,9 @@
     	<br>
    		<input type="submit" name="saveday" value="Save the day" />
 	</form>
-	
+
 	<script type="text/javascript">
 		onLoad()
 	</script>
-	
+
 {% endblock %}
