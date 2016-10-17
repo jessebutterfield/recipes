@@ -30,12 +30,14 @@
 	{% else %}
 	    <p>No recipe found with this id.</p>
 	{% endif %}
-	<form action="/mealplanner/date/addRecipe" method="POST">
-		{% csrf_token %}
-		<input name="date" type="date" required>
-		<input type="hidden" name="recipe_id" value="{{recipe.id}}">
-		<input type="submit" value="Add To Date">
-	</form>
+	{% if user == recipe.author %}
+		<form action="/mealplanner/date/addRecipe" method="POST">
+			{% csrf_token %}
+			<input name="date" type="date" required>
+			<input type="hidden" name="recipe_id" value="{{recipe.id}}">
+			<input type="submit" value="Add To Date">
+		</form>
+	{% endif %}
 
 
 {% endblock %}
