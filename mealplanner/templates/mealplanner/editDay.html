@@ -83,6 +83,7 @@
 
             //Add new input fields
             var row = table.insertRow();
+            var toBeFocused;
             for	(i = 0; i < ingredient_fields.length; i++) {
     			var cell = row.insertCell();
             	var input = document.createElement("input");
@@ -94,6 +95,7 @@
 					// Add limits to number field
 		            input.setAttribute("step", "any");
 		            input.setAttribute("min", "0");
+		            toBeFocused = input;
             	} else {
             		input.type = "text";
             	}
@@ -108,6 +110,11 @@
             d.setAttribute("style","color:blue");
             d.setAttribute("class", "del");
             cell.appendChild(d);
+
+            // if this is a new ingredient, bring the focus here
+		    if(ingredient == null){
+		    	toBeFocused.focus();
+		    }
         }
 
         function deleteIngredient(deleteButton){
