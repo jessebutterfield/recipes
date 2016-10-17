@@ -3,7 +3,7 @@
 {% block body_block %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script type="text/javascript">
-	function deleteRecipe(index){ 
+	function deleteRecipe(index){
 		var recipe = document.getElementById("recipe-"+index);
 		var conf = window.confirm("Are you sure you want to delete " + recipe.firstChild.innerHTML + ". This cannot be undone");
 		if(conf) {
@@ -14,11 +14,30 @@
 			$.post("/mealplanner/recipe/delete/" + index + "/");
 		}
 	}
+	function recipeFilter() {
+	    // Declare variables
+	    var input, filter, ul, li, a, i;
+	    input = document.getElementById("searchInput");
+	    filter = input.value.toUpperCase();
+	    ul = document.getElementById("recipeList");
+	    li = ul.getElementsByTagName('li');
+
+	    // Loop through all list items, and hide those who don't match the search query
+	    for (i = 0; i < li.length; i++) {
+	        a = li[i].getElementsByTagName("a")[0];
+	        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+	            li[i].style.display = "";
+	        } else {
+	            li[i].style.display = "none";
+	        }
+	    }
+	}
 </script>
 
 	<h1>{%if user == author %}My {% else %}{{author.username}}'s {% endif %}Recipes</h1>
+	<input type="text" id="searchInput" onkeyup="recipeFilter()" placeholder="Search for recipes..">
 	{% if recipe_list %}
-	    <ul>
+	    <ul id="recipeList">
 	    {% for recipe in recipe_list %}
 	        <li id="recipe-{{recipe.id}}"><a href="/mealplanner/recipe/view/{{ recipe.id }}/">{{ recipe.name }}</a>
 	        {%if user == author %}

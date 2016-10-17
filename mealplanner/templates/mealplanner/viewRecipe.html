@@ -3,11 +3,11 @@
 {% block body_block %}
 
 	{% if recipe %}
-	
+
 		{% if error %}
 			<h1><font color="red">{{ error }}</font></h1>
 		{% endif %}
-		
+
 		<h1>View recipe</h1>
 		<h3>Name: {{recipe.name}}</h3>
 		<h3>Author: {{recipe.author}}</h3>
@@ -19,7 +19,7 @@
 	    </ul>
 	    <h3>Instructions:</h3>
 	    <p>{{recipe.instructions|linebreaks}}</p>
-	    
+
 	    <p><a href="/mealplanner/recipe/edit/{{ recipe.id }}/">
 	    {% if user == recipe.author %}
 	    	Edit this recipe
@@ -30,5 +30,12 @@
 	{% else %}
 	    <p>No recipe found with this id.</p>
 	{% endif %}
-	
+	<form action="/mealplanner/date/addRecipe" method="POST">
+		{% csrf_token %}
+		<input name="date" type="date" required>
+		<input type="hidden" name="recipe_id" value="{{recipe.id}}">
+		<input type="submit" value="Add To Date">
+	</form>
+
+
 {% endblock %}

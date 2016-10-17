@@ -2,19 +2,13 @@ from django.template import loader
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Max, F
 
-from datetime import datetime,date,timedelta
+from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Aisle
+from mealplanner.forms import recipe_name_form_factory
 
-from mealplanner.models import Recipe, RecipeIngredient, Ingredient, Meal, UserSettings, Aisle, DayIngredient
-from mealplanner.forms import recipe_name_form_factory, info_form_factory, signup_form, generate_list_form_factory
-
-import calendar
-import collections
 
 @login_required
 def index(request):

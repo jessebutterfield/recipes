@@ -243,5 +243,18 @@ def saveDayMeals(request, year, month, day):
     for dayIngredient in dayIngredientsToSave:
         dayIngredient.save()
 
+@login_required
+def addToDate(request):
+    if request.method == 'POST':
+        d = datetime.strptime(request.POST['date'], '%Y-%m-%d')
+        recipe_id = int(request.POST['recipe_id'])
+        userSettings = UserSettings.objects.get(user=request.user)
+        meal = Meal(user=request.user, recipe_id=recipe_id, date=d,
+                    servings=userSettings.defaultServings)
+        meal.save()
+
+    return HttpResponseRedirect(reverse('detailDay', args=(d.year,d.month,d.day)))
+
+
 
 

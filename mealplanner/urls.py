@@ -28,6 +28,7 @@ urlpatterns = [
     url(r"^(\d+)/(\d+)/(\d+)/$", calendar_views.detailDay, name="detailDay"),
     url(r"^save/(\d+)/(\d+)/(\d+)/$", calendar_views.saveDay, name="saveDay"),
     url(r'generateList', calendar_views.generateList, name='generateList'),
+    url(r'date/addRecipe', calendar_views.addToDate, name='addToDate'),
 
     # User settings and login
     url(r'signup', user_info_views.signup, name='signup'),
