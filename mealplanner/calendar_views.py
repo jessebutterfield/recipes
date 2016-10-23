@@ -137,7 +137,7 @@ def month(request, year, month):
             entries = Meal.objects.filter(date=n, user=request.user)
             if(entries):
                 for u in entries.all():
-                    meals.append("(" + str(u.servings) + ") " + u.recipe.name)
+                    meals.append(u.recipe.name)
             entries = DayIngredient.objects.filter(date=n, user=request.user)
             if(entries):
                 ingredientDesc = ""
@@ -159,7 +159,8 @@ def month(request, year, month):
         'month': month,
         'month_days': lst,
         'mname': mnames[month-1],
-        'week_days': week_days
+        'week_days': week_days,
+        'first_day': firstDay + 1 % 7,
     }
     return render(request, "mealplanner/index.html", context)
 
@@ -246,7 +247,7 @@ def saveDayMeals(request, year, month, day):
 @login_required
 def addToDate(request):
     if request.method == 'POST':
-        d = datetime.strptime(request.POST['date'], '%Y-%m-%d')
+        d = datetime.strptime(request.POST['date'], '%m/%d/%Y')
         recipe_id = int(request.POST['recipe_id'])
         userSettings = UserSettings.objects.get(user=request.user)
         meal = Meal(user=request.user, recipe_id=recipe_id, date=d,

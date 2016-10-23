@@ -49,8 +49,13 @@ def recipeBrowser(request):
 def viewRecipe(request, recipe_id):
     recipe = Recipe.objects.get(id=recipe_id)
     template = loader.get_template('mealplanner/viewRecipe.html')
+    if request.user.usersettings:
+        first_day = request.user.usersettings.firstDayOfWeek + 1 % 7
+    else:
+        first_day = 0
     context = {
         'recipe': recipe,
+        'first_day': first_day,
     }
 
     return HttpResponse(template.render(context, request))

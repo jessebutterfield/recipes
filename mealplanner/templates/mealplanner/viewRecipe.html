@@ -31,9 +31,17 @@
 	    <p>No recipe found with this id.</p>
 	{% endif %}
 	{% if user == recipe.author %}
+		<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+	  	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	  	<script>
+		    $(function() {
+		    	$( "#datepicker-add" ).datepicker({'firstDay': {{first_day}} });
+		    });
+		</script>
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 		<form action="/mealplanner/date/addRecipe" method="POST">
 			{% csrf_token %}
-			<input name="date" type="date" required>
+			<input type="text" id="datepicker-add" name="date" required>
 			<input type="hidden" name="recipe_id" value="{{recipe.id}}">
 			<input type="submit" value="Add To Date">
 		</form>

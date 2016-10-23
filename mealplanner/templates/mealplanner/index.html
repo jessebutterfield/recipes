@@ -6,10 +6,10 @@
   	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
   	<script>
 	    $(function() {
-	    	$( "#datepicker-start" ).datepicker();
+	    	$( "#datepicker-start" ).datepicker({'firstDay': {{first_day}} });
 	    });
 	    $(function() {
-	    	$( "#datepicker-end" ).datepicker();
+	    	$( "#datepicker-end" ).datepicker({'firstDay': {{first_day}} });
 	    });
 	</script>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -19,19 +19,19 @@
 
 	<div class="month">
 	    <table>
-	
+
 	    <tr>
 	    	{% for dday in week_days %}
 	    		<td class="calendartd datenum">{{dday}}</td>
 	        {% endfor %}
 	    </tr>
-	
+
 	    {% for week in month_days %}
 	        <tr>
 	        {% for day, current, meals in week %}
-	
+
 	            <!-- TD style: empty | day | current; onClick handler and highlight  -->
-	            
+
 	            <td class= "calendartd {% if day == 0 %}empty"{% endif %}
 	            {% if day != 0 and not current %}day"{% endif %}
 	            {% if day != 0 and current %}current"{% endif %}
@@ -50,7 +50,7 @@
 	        </tr>
 	    {% endfor %}
 	    </table>
-	
+
 	    <div class="clear"></div>
 	</div>
 	<br>
