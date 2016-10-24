@@ -3,20 +3,20 @@
 <html>
 
 	{% load staticfiles %}
-	<link rel="stylesheet" type="text/css" href="{% static "base.css" %}" />
+	<link rel="stylesheet" href="{% static "base.css" %}" />
 
     <head>
         <title>Meal planner</title>
     </head>
 
 	<body style="background:url({% static "chopping-spoon.jpg" %}) no-repeat center top/cover transparent; background-color: #BCE6CD;">
-    	<div>
+    	<div class="noprint">
 			{% if user.username %}
 				Welcome {{user.username}} | <a href = "/logout/"> Logout </a> | <a href = "/mealplanner/updateSettings/"> Update user info </a> |
 			{% else %}
-				<a href = "{% url "django.contrib.auth.views.login" %}"> Login </a> | 
+				<a href = "{% url "django.contrib.auth.views.login" %}"> Login </a> |
 			{% endif %}
-			
+
 			<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">My Recipes</a> | <a href="/mealplanner/recipe/browser/">Recipe Browser</a> | <a href="/mealplanner/aisle/browser/">Aisle Browser</a>
 		</div>
     	<hr />

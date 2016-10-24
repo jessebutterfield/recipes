@@ -14,8 +14,8 @@
 	</script>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
-	<h1>Calendar</h1>
-	<h2> <a href= "{% url "newMonth" year month "prev" %}">&lt;&lt; </a> - {{ mname }} {{ year }} - <a href= "{% url "newMonth" year month "next" %}">&gt;&gt;</a></h2>
+	<h1 class="noprint">Calendar</h1>
+	<h2> <a class="noprint" href= "{% url "newMonth" year month "prev" %}">&lt;&lt; </a> - {{ mname }} {{ year }} - <a class="noprint" href= "{% url "newMonth" year month "next" %}">&gt;&gt;</a></h2>
 
 	<div class="month">
 	    <table>
@@ -51,10 +51,10 @@
 	    {% endfor %}
 	    </table>
 
-	    <div class="clear"></div>
+	    <div class="clear noprint"></div>
 	</div>
 	<br>
-	<form action="/mealplanner/generateList/" method="post">
+	<form action="/mealplanner/generateList/" method="post" class="noprint">
 		{% csrf_token %}
 		Start date: <input type="text" id="datepicker-start" name="start_date">End date: <input type="text" id="datepicker-end" name="end_date">
 	    <input type="submit" name="generatelist" value="Generate a shopping list"/>

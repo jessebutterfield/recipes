@@ -1,65 +1,127 @@
-.calendartd {
-	vertical-align:text-top;
-	border-style:solid;
-	border-color:#7A5D2A;
-	border-width: 2px;
-	height:5em;
-	width:9em;
+@media screen {
+	.calendartd {
+		vertical-align:text-top;
+		border-style:solid;
+		border-color:#7A5D2A;
+		border-width: 2px;
+		height:5em;
+		width:9em;
+	}
+
+	.current {
+		background-color:#b0c4de;
+	}
+
+	.empty {
+		border-width: 0px;
+	}
+
+	.error {
+		border-width: 2px;
+		border-color: red;
+	}
+
+	.datenum {
+		font-weight:bold;
+		height:2em;
+	}
+
+	.darkBrown {
+		color:#7A5D2A;
+	}
+
+	.selection_checkbox:checked + .selection_label {
+		text-decoration:line-through;
+	}
+
+	.delx {
+		color:blue;
+		display:inline;
+		text-decoration: none;
+	}
+
+	table {
+		border-collapse:collapse;
+	}
+
+	html, body, fieldset, table, tr, td, img, div {
+		font-family: Trebuchet MS, sans-serif;
+		font-size: 14px;
+		font-style: normal;
+		color: #226B33;
+		font-variant: normal;
+		font-weight: 400;
+		line-height: 20px;
+	}
+
+	td {
+		vertical-align:text-top;
+	}
+
+	input[type=date]::-webkit-inner-spin-button {
+	    -webkit-appearance: none;
+	    display: none;
+	}
+
 }
 
-.current {
-	background-color:#b0c4de;
+@media print{
+	@page{
+		size: A4 landscape;
+		margin: 0;
+	}
+	.calendartd {
+		vertical-align:text-top;
+		border-style:solid;
+		border-color:#7A5D2A;
+		border-width: 2px;
+		height:28mm;
+		width:40mm;
+	}
+
+	.current {
+		background-color:#b0c4de;
+	}
+
+	.empty {
+		border-width: 0px;
+	}
+
+	.error {
+		border-width: 2px;
+		border-color: red;
+	}
+
+	.datenum {
+		font-weight:bold;
+		height:2em;
+	}
+
+	.darkBrown {
+		color:#7A5D2A;
+	}
+
+	table {
+		border-collapse:collapse;
+	}
+
+	html, body, fieldset, table, tr, td, img, div {
+		font-family: Trebuchet MS, sans-serif;
+		font-size: 14px;
+		font-style: normal;
+		font-variant: normal;
+		font-weight: 400;
+		line-height: 20px;
+	}
+
+	td {
+		vertical-align:text-top;
+	}
+
+	.noprint {
+		display: none;
+	}
 }
 
-.empty {
-	border-width: 0px;
-}
-
-.error {
-	border-width: 2px;
-	border-color: red;
-}
-
-.datenum {
-	font-weight:bold;
-	height:2em;
-}
-
-.darkBrown {
-	color:#7A5D2A;
-}
-
-.selection_checkbox:checked + .selection_label {
-	text-decoration:line-through;
-}
-
-.delx {
-	color:blue;
-	display:inline;
-	text-decoration: none;
-}
-
-table {
-	border-collapse:collapse;
-}
-
-html, body, form, fieldset, table, tr, td, img, div {
-	font-family: Trebuchet MS, sans-serif;
-	font-size: 14px;
-	font-style: normal;
-	color: #226B33;
-	font-variant: normal;
-	font-weight: 400;
-	line-height: 20px;
-}
-
-td {
-	vertical-align:text-top;
-}
-
-input[type=date]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    display: none;
-}
 
 
