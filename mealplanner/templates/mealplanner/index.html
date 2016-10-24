@@ -37,6 +37,7 @@
 	            {% if day != 0 and current %}current"{% endif %}
 	            {% if day != 0 %}
 	            	onClick="parent.location='{% url  "detailDay" year month day %}'" >
+	            	<div class="nooverflow">
 	                <div class="datenum"> {{ day }} </div>
 	                {% for meal in meals %}
 	                    <div title = "{{ meal }}">{{ meal }}</div>
@@ -45,6 +46,7 @@
 	            	>
 	            	<p> </p>
 	            {% endif %}
+	            </div>
 	            </td>
 	        {% endfor %}
 	        </tr>
