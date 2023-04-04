@@ -1,7 +1,7 @@
 from django.template import loader
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -21,12 +21,12 @@ def postLogin(request):
             login(request, user)
             _, created = UserSettings.objects.get_or_create(user=user)
             if(created):
-                return HttpResponseRedirect(reverse('updateInfo'))
+                return HttpResponseRedirect(reverse_lazy('updateSettings'))
             else:
                 if(n):
                     return HttpResponseRedirect(n)
                 else:
-                    return HttpResponseRedirect(reverse('currentMonth'))
+                    return HttpResponseRedirect(reverse_lazy('currentMonth'))
         HttpResponse("Form was valid")
     return HttpResponse("Form was invalid")
 
@@ -55,7 +55,7 @@ def saveSettings(request):
         userSettings.firstDayOfWeek = form.cleaned_data['firstDayOfWeek']
         userSettings.save()
 
-        return HttpResponseRedirect(reverse('currentMonth'))
+        return HttpResponseRedirect(reverse_lazy('currentMonth'))
     else:
         return updateSettings(request, form)
 
@@ -78,8 +78,8 @@ def createAccount(request):
         user.save()
         user = authenticate(username=username, password=password)
         login(request, user)
-        return HttpResponseRedirect(reverse('mealplanner.views.updateSettings'))
+        return HttpResponseRedirect(reverse_lazy('mealplanner.views.updateSettings'))
     else:
-        return HttpResponseRedirect(reverse('mealplanner.views.signup'))
+        return HttpResponseRedirect(reverse_lazy('mealplanner.views.signup'))
 
 

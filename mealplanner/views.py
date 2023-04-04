@@ -1,7 +1,7 @@
 from django.template import loader
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Max, F
@@ -100,7 +100,7 @@ def saveRecipe(request, recipe_id=None):
         else:
             return HttpResponse('Invalid form. Your changes to recipe "' + recipe.name + '" were not saved.')
 
-    return HttpResponseRedirect(reverse('mealplanner.views.viewRecipe', args=(recipe.id,)))
+    return HttpResponseRedirect(reverse_lazy('mealplanner.views.viewRecipe', args=(recipe.id,)))
 
 def saveRecipeFromForm(request,form, recipe):
     recipe.name =  form.cleaned_data['name']

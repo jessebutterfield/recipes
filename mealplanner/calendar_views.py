@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 
@@ -30,7 +30,7 @@ def generateList(request):
         else:
             return HttpResponse('Invalid form.')
 
-    return HttpResponseRedirect(reverse('currentMonth'))
+    return HttpResponseRedirect(reverse_lazy('currentMonth'))
 
 def generateListFromForm(request,form):
     start = form.cleaned_data['start_date']
@@ -105,12 +105,12 @@ def newMonth(request, year, month, change):
         elif change == "prev":
             d -= mdelta
         year, month = d.timetuple()[0:2]
-    return HttpResponseRedirect(reverse('month', args=(year,month)))
+    return HttpResponseRedirect(reverse_lazy('month', args=(year,month)))
 
 @login_required
 def currentMonth(request):
     year, month = date.today().timetuple()[0:2]
-    return HttpResponseRedirect(reverse('month', args=(year,month)))
+    return HttpResponseRedirect(reverse_lazy('month', args=(year,month)))
 
 @login_required
 def month(request, year, month):
@@ -188,7 +188,7 @@ def saveDay(request, year, month, day):
     if request.method == 'POST':
         saveDayMeals(request, year, month, day)
 
-    return HttpResponseRedirect(reverse('month', args=(year,month)))
+    return HttpResponseRedirect(reverse_lazy('month', args=(year,month)))
 
 def saveDayMeals(request, year, month, day):
     year, month, day = int(year), int(month), int(day)
@@ -254,7 +254,7 @@ def addToDate(request):
                     servings=userSettings.defaultServings)
         meal.save()
 
-    return HttpResponseRedirect(reverse('detailDay', args=(d.year,d.month,d.day)))
+    return HttpResponseRedirect(reverse_lazy('detailDay', args=(d.year,d.month,d.day)))
 
 
 

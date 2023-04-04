@@ -2,7 +2,7 @@
 
 <html>
 
-	{% load staticfiles %}
+	{% load static %}
 	<link rel="stylesheet" href="{% static "base.css" %}" />
 
     <head>
@@ -14,7 +14,7 @@
 			{% if user.username %}
 				Welcome {{user.username}} | <a href = "/logout/"> Logout </a> | <a href = "/mealplanner/updateSettings/"> Update user info </a> |
 			{% else %}
-				<a href = "{% url "django.contrib.auth.views.login" %}"> Login </a> |
+				<a href = "/login"> Login </a> |
 			{% endif %}
 
 			<a href="/mealplanner/">Calendar</a> | <a href="/mealplanner/recipe/editor/">My Recipes</a> | <a href="/mealplanner/recipe/browser/">Recipe Browser</a> | <a href="/mealplanner/aisle/browser/">Aisle Browser</a>
